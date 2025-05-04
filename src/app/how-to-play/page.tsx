@@ -39,7 +39,7 @@ const steps = [
   {
     id: 4,
     title: 'Win Rewards',
-    description: 'If your NFT ranks high enough, you\'ll earn SUI rewards and exclusive benefits in the ecosystem.',
+    description: 'If your NFT ranks high enough, you&apos;ll earn SUI rewards and exclusive benefits in the ecosystem.',
     icon: '💰',
     details: 'Rewards are distributed automatically at the end of each tournament. Top performers also gain access to exclusive future tournaments with higher stakes.'
   }
@@ -86,7 +86,7 @@ const faqItems = [
   },
   {
     question: 'When do I receive my rewards?',
-    answer: 'Rewards are automatically distributed to winners\' wallets immediately after a tournament ends.'
+    answer: 'Rewards are automatically distributed to winners&apos; wallets immediately after a tournament ends.'
   },
   {
     question: 'Can I enter multiple NFTs in the same tournament?',
@@ -101,7 +101,7 @@ const faqItems = [
     answer: 'No, once you enter your NFT, the process is automated. You can check back anytime to see your current ranking.'
   },
   {
-    question: 'What happens if there\'s a tie in votes?',
+    question: 'What happens if there&apos;s a tie in votes?',
     answer: 'In case of a tie, the NFT that reached that vote count first will be ranked higher.'
   }
 ];
@@ -116,7 +116,9 @@ export default function HowToPlay() {
           {/* Hero Section with Background */}
           <div className="relative overflow-hidden rounded-2xl mb-16 bg-gradient-to-r from-gray-900 to-black p-8 md:p-12">
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute inset-0 bg-[url('/images/nft-skull.png')] bg-center bg-no-repeat bg-contain opacity-20"></div>
+              <div className="absolute top-0 left-0 w-full h-full bg-[url('/images/nft-skull.png')] bg-center bg-no-repeat bg-contain opacity-5"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full -ml-32 -mb-32 blur-xl"></div>
             </div>
             
             <motion.div 
@@ -228,8 +230,8 @@ export default function HowToPlay() {
             {/* Background design elements */}
             <div className="absolute inset-0 -z-10 overflow-hidden rounded-2xl">
               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-gray-50 to-white"></div>
-              <div className="absolute top-0 left-0 w-32 h-32 bg-gray-100 rounded-full -ml-16 -mt-16"></div>
-              <div className="absolute bottom-0 right-0 w-64 h-64 bg-gray-100 rounded-full -mr-32 -mb-32"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gray-100 rounded-full -mr-16 -mt-16"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-gray-100 rounded-full -ml-32 -mb-32"></div>
               <div className="absolute top-1/2 left-1/4 w-4 h-4 bg-gray-200 rounded-full"></div>
               <div className="absolute top-1/4 right-1/3 w-6 h-6 bg-gray-200 rounded-full"></div>
             </div>
@@ -294,14 +296,14 @@ export default function HowToPlay() {
                         </div>
                       </div>
                     </div>
-                  </div>
                   
-                  <div className="flex justify-center items-center gap-2">
-                    <div className="bg-black text-white text-xs px-4 py-1.5 rounded-full inline-block shadow-md font-medium">
-                      <span className="mr-1">❤️</span> 254 Votes
-                    </div>
-                    <div className="bg-gray-100 text-gray-500 text-xs px-3 py-1.5 rounded-full inline-block">
-                      <span className="mr-1">⏱️</span> 2d left
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="bg-black text-white text-xs px-4 py-1.5 rounded-full inline-block shadow-md font-medium">
+                        <span className="mr-1">❤️</span> 254 Votes
+                      </div>
+                      <div className="bg-gray-100 text-gray-500 text-xs px-3 py-1.5 rounded-full inline-block">
+                        <span className="mr-1">⏱️</span> 2d left
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -492,10 +494,10 @@ export default function HowToPlay() {
                   <div className="absolute -bottom-2 left-0 right-0 h-1 bg-black rounded-full transform scale-x-50"></div>
                 </h2>
                 <p className="text-center text-gray-600 mb-2 max-w-[600px] mx-auto text-sm">
-                  Got questions? We've got answers.
+                  Got questions? We&apos;ve got answers.
                 </p>
                 <p className="text-center text-gray-500 max-w-[500px] mx-auto text-xs">
-                  If you don't see your question here, reach out to our community on Discord.
+                  If you don&apos;t see your question here, reach out to our community on Discord.
                 </p>
               </motion.div>
               
@@ -563,7 +565,7 @@ export default function HowToPlay() {
                   Tournament Flow
                 </h2>
                 <p className="text-center text-gray-300 mb-2 max-w-[600px] mx-auto text-sm">
-                  Here's what happens from the moment you enter a tournament to receiving rewards.
+                  Here&apos;s what happens from the moment you enter a tournament to receiving rewards.
                 </p>
               </motion.div>
               
@@ -645,9 +647,10 @@ export default function HowToPlay() {
           >
             {/* Background elements */}
             <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-[url('/images/nft-skull.png')] bg-center bg-no-repeat bg-contain opacity-5"></div>
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-xl"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full -ml-32 -mb-32 blur-xl"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mb-32"></div>
+              <div className="absolute top-1/2 left-1/4 w-8 h-8 bg-white/10 rounded-full"></div>
+              <div className="absolute top-1/4 right-1/3 w-12 h-12 bg-white/10 rounded-full"></div>
             </div>
             
             <div className="relative z-10">
