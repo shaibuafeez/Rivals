@@ -1,0 +1,495 @@
+#[test_only]
+module rivals_tournament::tournament_tests {
+    use sui::test_scenario::{Self, Scenario};
+    use sui::coin::{Self, Coin};
+    use sui::sui::SUI;
+    use sui::object::{Self, ID};
+    use sui::clock::{Self, Clock};
+    
+    use std::string;
+    
+    use rivals_tournament::tournament::{Tournament, TournamentRegistry};
+    use rivals_tournament::nft_manager::{Self, RivalNFT};
+    use rivals_tournament::user_reputation::{UserProfile, UserRegistry};
+    
+    // Test addresses
+    const ADMIN: address = @0xA11CE;
+    const USER1: address = @0xB0B;
+    const USER2: address = @0xCAFE;
+    
+    // Test constants
+    const DAILY_TOURNAMENT: u8 = 1;
+    
+    // Helper function to set up test scenario
+    fun setup_test(): Scenario {
+        // Start with a clean scenario
+        test_scenario::begin(ADMIN)
+    }
+    
+    // Helper function to create a clock for testing
+    fun create_test_clock(scenario: &mut Scenario): Clock {
+        test_scenario::next_tx(scenario, ADMIN);
+        clock::create_for_testing(test_scenario::ctx(scenario))
+    }
+    
+    // Test creating a tournament
+    #[test]
+    fun test_create_tournament() {
+        let mut scenario = setup_test();
+        let clock = create_test_clock(&mut scenario);
+        
+        // First, create the tournament registry
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            // Create a tournament registry for testing
+            rivals_tournament::tournament::create_registry_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Create a tournament
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            let mut registry = test_scenario::take_shared<TournamentRegistry>(&scenario);
+            
+            // Create prize coin in ADMIN context
+            let prize = coin::mint_for_testing<SUI>(100000000, test_scenario::ctx(&mut scenario)); // 1 SUI
+            
+            rivals_tournament::tournament::create_tournament(
+                &mut registry,
+                string::utf8(b"Daily Tournament"),
+                string::utf8(b"Test daily tournament"),
+                DAILY_TOURNAMENT,
+                24, // 24 hours
+                10000000, // 0.1 SUI entry fee
+                prize,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            test_scenario::return_shared(registry);
+        };
+        
+        // Verify tournament was created
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            let tournament = test_scenario::take_shared<Tournament>(&scenario);
+            let (name, description, tournament_type, status, _, _, entry_fee, prize_pool) = 
+                rivals_tournament::tournament::get_tournament_details(&tournament);
+            
+            assert!(name == string::utf8(b"Daily Tournament"), 0);
+            assert!(description == string::utf8(b"Test daily tournament"), 0);
+            assert!(tournament_type == DAILY_TOURNAMENT, 0);
+            assert!(status == 1, 0); // Active
+            assert!(entry_fee == 10000000, 0);
+            assert!(prize_pool == 100000000, 0);
+            
+            test_scenario::return_shared(tournament);
+        };
+        
+        clock::destroy_for_testing(clock);
+        test_scenario::end(scenario);
+    }
+    
+    // Test creating user profiles
+    #[test]
+    fun test_create_user_profiles() {
+        let mut scenario = setup_test();
+        
+        // First, create the user registry
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            // Create a user registry for testing
+            rivals_tournament::user_reputation::create_registry_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Create user profiles
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let mut registry = test_scenario::take_shared<UserRegistry>(&scenario);
+            rivals_tournament::user_reputation::create_profile(&mut registry, test_scenario::ctx(&mut scenario));
+            test_scenario::return_shared(registry);
+        };
+        
+        // Verify user profiles were created
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let profile = test_scenario::take_from_sender<UserProfile>(&scenario);
+            let (owner, reputation, tournaments_participated, tournaments_won, votes_cast, staked) = 
+                rivals_tournament::user_reputation::get_profile_details(&profile);
+            
+            assert!(owner == USER1, 0);
+            assert!(reputation == 100, 0); // Base reputation
+            assert!(tournaments_participated == 0, 0);
+            assert!(tournaments_won == 0, 0);
+            assert!(votes_cast == 0, 0);
+            assert!(staked == 0, 0);
+            
+            test_scenario::return_to_sender(&scenario, profile);
+        };
+        
+        test_scenario::end(scenario);
+    }
+    
+    // Test minting NFTs
+    #[test]
+    fun test_mint_nfts() {
+        let mut scenario = setup_test();
+        
+        // Initialize NFT manager first
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            // Create the NFT display for testing
+            rivals_tournament::nft_manager::create_display_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Mint NFT for USER1
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let nft = nft_manager::mint(
+                string::utf8(b"Doonies #123"),
+                string::utf8(b"A rare Doonie NFT"),
+                b"https://example.com/nft.png",
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            // Transfer NFT to self (just for testing)
+            nft_manager::transfer_nft(nft, USER1);
+        };
+        
+        test_scenario::end(scenario);
+    }
+    
+    // Test registering NFT to tournament
+    #[test]
+    fun test_register_nft_to_tournament() {
+        let mut scenario = setup_test();
+        let mut clock = create_test_clock(&mut scenario);
+        
+        // First, create the tournament registry
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            // Create a tournament registry for testing
+            rivals_tournament::tournament::create_registry_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Create a tournament
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            let mut registry = test_scenario::take_shared<TournamentRegistry>(&scenario);
+            
+            // Create prize coin in ADMIN context
+            let prize = coin::mint_for_testing<SUI>(100000000, test_scenario::ctx(&mut scenario)); // 1 SUI
+            
+            rivals_tournament::tournament::create_tournament(
+                &mut registry,
+                string::utf8(b"Daily Tournament"),
+                string::utf8(b"Test daily tournament"),
+                DAILY_TOURNAMENT,
+                24, // 24 hours
+                10000000, // 0.1 SUI entry fee
+                prize,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            test_scenario::return_shared(registry);
+        };
+        
+        // Initialize NFT manager first
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            rivals_tournament::nft_manager::create_display_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Mint NFT
+        let nft_id: ID;
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let nft = nft_manager::mint(
+                string::utf8(b"Doonies #337"),
+                string::utf8(b"A rare Doonie NFT"),
+                b"https://example.com/nft1.png",
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            nft_id = object::id(&nft);
+            nft_manager::transfer_nft(nft, USER1);
+        };
+        
+        // Create payment for entry fee in USER1's context
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let payment = coin::mint_for_testing<SUI>(20000000, test_scenario::ctx(&mut scenario)); // 0.2 SUI
+            test_scenario::return_to_sender(&scenario, payment);
+        };
+        
+        // Register NFT to tournament
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let mut tournament = test_scenario::take_shared<Tournament>(&scenario);
+            let nft = test_scenario::take_from_sender<RivalNFT>(&scenario);
+            
+            // Create payment directly in this transaction context
+            let mut payment = coin::mint_for_testing<SUI>(20000000, test_scenario::ctx(&mut scenario)); // 0.2 SUI
+            
+            rivals_tournament::tournament::register_nft(
+                &mut tournament,
+                nft_id,
+                &mut payment,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            // Verify registration
+            let total_participants = rivals_tournament::tournament::get_total_participants(&tournament);
+            assert!(total_participants == 1, 0);
+            
+            // Return objects
+            test_scenario::return_shared(tournament);
+            test_scenario::return_to_sender(&scenario, nft);
+            test_scenario::return_to_sender(&scenario, payment);
+        };
+        
+        clock::destroy_for_testing(clock);
+        test_scenario::end(scenario);
+    }
+    
+    // Test voting for NFT
+    #[test]
+    fun test_vote_for_nft() {
+        let mut scenario = setup_test();
+        let clock = create_test_clock(&mut scenario);
+        
+        // First, create the tournament registry
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            // Create a tournament registry for testing
+            rivals_tournament::tournament::create_registry_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Create a tournament
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            let mut registry = test_scenario::take_shared<TournamentRegistry>(&scenario);
+            
+            // Create prize coin in ADMIN context
+            let prize = coin::mint_for_testing<SUI>(100000000, test_scenario::ctx(&mut scenario)); // 1 SUI
+            
+            rivals_tournament::tournament::create_tournament(
+                &mut registry,
+                string::utf8(b"Daily Tournament"),
+                string::utf8(b"Test daily tournament"),
+                DAILY_TOURNAMENT,
+                24, // 24 hours
+                10000000, // 0.1 SUI entry fee
+                prize,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            test_scenario::return_shared(registry);
+        };
+        
+        // Initialize NFT manager first
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            rivals_tournament::nft_manager::create_display_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Mint NFT
+        let nft_id: ID;
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let nft = nft_manager::mint(
+                string::utf8(b"Doonies #337"),
+                string::utf8(b"A rare Doonie NFT"),
+                b"https://example.com/nft1.png",
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            nft_id = object::id(&nft);
+            nft_manager::transfer_nft(nft, USER1);
+        };
+        
+        // Create payment for entry fee in USER1's context
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let payment = coin::mint_for_testing<SUI>(20000000, test_scenario::ctx(&mut scenario)); // 0.2 SUI
+            test_scenario::return_to_sender(&scenario, payment);
+        };
+        
+        // Register NFT to tournament
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let mut tournament = test_scenario::take_shared<Tournament>(&scenario);
+            let nft = test_scenario::take_from_sender<RivalNFT>(&scenario);
+            let mut payment = test_scenario::take_from_sender<Coin<SUI>>(&scenario);
+            
+            rivals_tournament::tournament::register_nft(
+                &mut tournament,
+                nft_id,
+                &mut payment,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            // Return objects
+            test_scenario::return_shared(tournament);
+            test_scenario::return_to_sender(&scenario, nft);
+            test_scenario::return_to_sender(&scenario, payment);
+        };
+        
+        // USER2 votes for the NFT
+        test_scenario::next_tx(&mut scenario, USER2);
+        {
+            let mut tournament = test_scenario::take_shared<Tournament>(&scenario);
+            
+            rivals_tournament::tournament::vote_for_nft(
+                &mut tournament,
+                nft_id,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            // Verify vote was recorded
+            let has_voted = rivals_tournament::tournament::has_voted_for_nft(
+                &tournament,
+                USER2,
+                nft_id
+            );
+            assert!(has_voted, 0);
+            
+            test_scenario::return_shared(tournament);
+        };
+        
+        clock::destroy_for_testing(clock);
+        test_scenario::end(scenario);
+    }
+    
+    // Test ending tournament
+    #[test]
+    fun test_end_tournament() {
+        let mut scenario = setup_test();
+        let mut clock = create_test_clock(&mut scenario);
+        
+        // First, create the tournament registry
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            // Create a tournament registry for testing
+            rivals_tournament::tournament::create_registry_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Create a tournament
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            let mut registry = test_scenario::take_shared<TournamentRegistry>(&scenario);
+            
+            // Create prize coin in ADMIN context
+            let prize = coin::mint_for_testing<SUI>(100000000, test_scenario::ctx(&mut scenario)); // 1 SUI
+            
+            rivals_tournament::tournament::create_tournament(
+                &mut registry,
+                string::utf8(b"Daily Tournament"),
+                string::utf8(b"Test daily tournament"),
+                DAILY_TOURNAMENT,
+                24, // 24 hours
+                10000000, // 0.1 SUI entry fee
+                prize,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            test_scenario::return_shared(registry);
+        };
+        
+        // Initialize NFT manager first
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            rivals_tournament::nft_manager::create_display_for_testing(test_scenario::ctx(&mut scenario));
+        };
+        
+        // Mint NFT
+        let nft_id: ID;
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let nft = nft_manager::mint(
+                string::utf8(b"Doonies #337"),
+                string::utf8(b"A rare Doonie NFT"),
+                b"https://example.com/nft1.png",
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            nft_id = object::id(&nft);
+            nft_manager::transfer_nft(nft, USER1);
+        };
+        
+        // Create payment for entry fee in USER1's context
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let payment = coin::mint_for_testing<SUI>(20000000, test_scenario::ctx(&mut scenario)); // 0.2 SUI
+            test_scenario::return_to_sender(&scenario, payment);
+        };
+        
+        // Register NFT to tournament
+        test_scenario::next_tx(&mut scenario, USER1);
+        {
+            let mut tournament = test_scenario::take_shared<Tournament>(&scenario);
+            let nft = test_scenario::take_from_sender<RivalNFT>(&scenario);
+            let mut payment = test_scenario::take_from_sender<Coin<SUI>>(&scenario);
+            
+            rivals_tournament::tournament::register_nft(
+                &mut tournament,
+                nft_id,
+                &mut payment,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            // Return objects
+            test_scenario::return_shared(tournament);
+            test_scenario::return_to_sender(&scenario, nft);
+            test_scenario::return_to_sender(&scenario, payment);
+        };
+        
+        // USER2 votes for the NFT
+        test_scenario::next_tx(&mut scenario, USER2);
+        {
+            let mut tournament = test_scenario::take_shared<Tournament>(&scenario);
+            
+            rivals_tournament::tournament::vote_for_nft(
+                &mut tournament,
+                nft_id,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            test_scenario::return_shared(tournament);
+        };
+        
+        // Fast forward time to end the tournament (24 hours + 1 minute)
+        clock::increment_for_testing(&mut clock, 24 * 60 * 60 * 1000 + 60000);
+        
+        // End the tournament
+        test_scenario::next_tx(&mut scenario, ADMIN);
+        {
+            let mut registry = test_scenario::take_shared<TournamentRegistry>(&scenario);
+            let mut tournament = test_scenario::take_shared<Tournament>(&scenario);
+            
+            rivals_tournament::tournament::end_tournament(
+                &mut registry,
+                &mut tournament,
+                &clock,
+                test_scenario::ctx(&mut scenario)
+            );
+            
+            // Verify tournament ended
+            let (_, _, _, status, _, _, _, _) = rivals_tournament::tournament::get_tournament_details(&tournament);
+            assert!(status == 2, 0); // Ended
+            
+            test_scenario::return_shared(registry);
+            test_scenario::return_shared(tournament);
+        };
+        
+        clock::destroy_for_testing(clock);
+        test_scenario::end(scenario);
+    }
+}
