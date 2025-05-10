@@ -1,6 +1,13 @@
-import { type SuiClient } from '@/types/sui-client';
+// Define SuiClient type directly to avoid import issues
+/* eslint-disable @typescript-eslint/no-explicit-any */
+interface SuiClient {
+  // Basic methods that would be used by our services
+  getObject?: (objectId: string) => Promise<any>;
+  executeTransactionBlock?: (tx: any) => Promise<any>;
+  // Add more method signatures as needed
+}
 import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { PACKAGE_IDS } from '@/config/env';
+import { PACKAGE_IDS } from '../config/env';
 
 // Get package IDs from environment configuration
 const TOURNAMENT_PACKAGE_ID = PACKAGE_IDS.TOURNAMENT_PACKAGE_ID;
