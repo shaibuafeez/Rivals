@@ -7,6 +7,7 @@ import { FC, useState, useEffect } from 'react';
 import { useSuiClient } from '@mysten/dapp-kit';
 import { useWallet } from '@/hooks/useWallet';
 import { TournamentService } from '@/services/tournamentService';
+import { castToSuiClient } from '@/types/sui-client';
 
 interface NFTDisplay {
   id: string;
@@ -31,7 +32,7 @@ const NFTCarousel: FC<NFTCarouselProps> = ({ tournamentId }) => {
   
   const suiClient = useSuiClient();
   const { isConnected, executeTransaction } = useWallet();
-  const tournamentService = new TournamentService(suiClient);
+  const tournamentService = new TournamentService(castToSuiClient(suiClient));
   
   useEffect(() => {
     const fetchNFTs = async () => {
