@@ -1,28 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// Import the real TransactionBlock
+import { TransactionBlock } from '@mysten/sui.js/transactions';
+
 // Simple type definition to avoid import issues
 interface SuiClient {
   getObject?: (objectId: string) => Promise<any>;
   executeTransactionBlock?: (tx: any) => Promise<any>;
 }
 
-// Mock package IDs for development
+// Package IDs for development
 const PACKAGE_IDS = {
   TOURNAMENT_PACKAGE_ID: process.env.NEXT_PUBLIC_TOURNAMENT_PACKAGE_ID || '0x0',
   TOURNAMENT_REGISTRY_ID: process.env.NEXT_PUBLIC_TOURNAMENT_REGISTRY_ID || '0x0',
   WALRUS_PACKAGE_ID: process.env.NEXT_PUBLIC_WALRUS_PACKAGE_ID || '0x0',
 };
-
-// Mock TransactionBlock for development
-class TransactionBlock {
-  constructor() {}
-  // Mock methods to satisfy TypeScript
-  splitCoins(coin: any, amounts: any[]): any { return { coin, amounts }; }
-  gas: any = { coin: '0x0' };
-  pure(value: any): any { return value; }
-  object(objectId: string): any { return objectId; }
-  moveCall(target: any, typeArguments?: any[], arguments_?: any[]): any { 
-    return { target, typeArguments, arguments: arguments_ }; }
-}
 
 // Get package IDs from environment configuration
 const TOURNAMENT_PACKAGE_ID = PACKAGE_IDS.TOURNAMENT_PACKAGE_ID;
