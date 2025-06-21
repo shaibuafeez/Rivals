@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWallet } from '@/hooks/useWallet';
 import { Tournament } from '@/services/tournamentService';
+import Image from 'next/image';
 
 interface TournamentCardProps {
   tournament: Tournament;
@@ -64,18 +65,30 @@ export default function TournamentCard({ tournament, onEnter }: TournamentCardPr
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden"
+      className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden dark:shadow-gray-900/30"
     >
-      <div className="p-5">
+      {/* Tournament Image */}
+      <div className="relative w-full h-40 mb-4 overflow-hidden rounded-t-xl group">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-75 blur-xl transition-all duration-500 -z-10 scale-110"></div>
+        <Image
+          src={`/images/tournaments/${tournament.id}.jpg`}
+          alt={tournament.name}
+          fill
+          className="object-cover w-full h-full transition-all duration-300 group-hover:brightness-125 group-hover:scale-105"
+          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = '/images/tournaments/default.jpg'; }}
+        />
+        <div className="absolute inset-0 rounded-t-xl shadow-[0_0_40px_rgba(99,102,241,0)] group-hover:shadow-[0_0_40px_rgba(99,102,241,0.6)] transition-all duration-500"></div>
+      </div>
+      <div className="p-5 dark:text-gray-100">
         <div className="flex justify-between items-start mb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-medium text-lg">{tournament.name}</h3>
+              <h3 className="font-medium text-lg dark:text-white">{tournament.name}</h3>
               <span className={`text-xs px-2 py-0.5 rounded-full ${statusInfo.color}`}>
                 {statusInfo.text}
               </span>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-300">
               {tournament.description}
             </p>
           </div>
@@ -87,18 +100,28 @@ export default function TournamentCard({ tournament, onEnter }: TournamentCardPr
         <div className="flex justify-between items-center mb-3">
           <div className="flex items-center">
             <div className="text-sm">
-              <span className="text-gray-500">Participants:</span> {tournament.totalParticipants}
+              <span className="text-gray-500 dark:text-gray-400">Participants:</span> {tournament.totalParticipants}
             </div>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             {getTimeRemaining()}
+          </div>
+        </div>
+        
+        {/* Prize Pool Display */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-md p-2 mb-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Prize Pool</span>
+            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+              {tournament.prizePool ? (Number(tournament.prizePool) / 1000000000).toFixed(2) : '0.00'} SUI
+            </span>
           </div>
         </div>
         
         {/* Tournament details toggle */}
         <button 
           onClick={() => setShowDetails(!showDetails)}
-          className="text-xs text-gray-500 flex items-center mb-3"
+          className="text-xs text-gray-500 dark:text-gray-400 flex items-center mb-3"
         >
           {showDetails ? 'Hide details' : 'Show details'}
           <svg 
@@ -113,7 +136,7 @@ export default function TournamentCard({ tournament, onEnter }: TournamentCardPr
         
         {/* Expanded details */}
         {showDetails && (
-          <div className="bg-gray-50 p-3 rounded-md mb-3 text-xs">
+          <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md mb-3 text-xs dark:text-gray-200">
             {tournament.registrationEndTime && (
               <div className="mb-1">
                 <span className="font-medium">Registration ends:</span> {new Date(tournament.registrationEndTime).toLocaleString()}
@@ -143,7 +166,7 @@ export default function TournamentCard({ tournament, onEnter }: TournamentCardPr
         {/* Entry requirements warning */}
         {!meetsRequirements() && (
           <div className="bg-yellow-50 border border-yellow-100 rounded-md p-2 mb-3 text-xs text-yellow-700">
-            You don't meet the requirements to enter this tournament.
+            You don&apos;t meet the requirements to enter this tournament.
           </div>
         )}
         

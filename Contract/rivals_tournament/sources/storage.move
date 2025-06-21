@@ -1,38 +1,30 @@
 module rivals_tournament::storage {
     use std::string::String;
-    use sui::object::{Self, ID, UID};
-    use sui::tx_context::{Self, TxContext};
+    // Using fully qualified names instead of aliases
     use sui::event;
-    use sui::transfer;
+    // Using fully qualified names for transfer
+    use sui::coin::Coin;
+    use sui::sui::SUI;
     
-    // Import Walrus modules
-    use walrus::blob::{Self, Blob};
-    
-    // Error codes
-    const ENotOwner: u64 = 1;
-    
-    // NFT Image Reference struct to link on-chain NFTs with off-chain Walrus storage
+    // NFT Image Reference struct to link on-chain NFTs with off-chain image storage
     public struct NFTImageReference has key, store {
         id: UID,
         nft_id: ID,
-        walrus_blob_id: ID, // This is the Sui object ID of the Walrus Blob object
-        blob_hash: vector<u8>, // The actual blob hash (u256 represented as bytes)
+        image_url: String, // URL to the NFT image
         owner: address,
     }
     
     // Events
     public struct NFTImageStoredEvent has copy, drop {
         nft_id: ID,
-        walrus_blob_id: ID,
-        blob_hash: vector<u8>,
+        image_url: String,
         owner: address,
     }
     
-    // Store a reference to an NFT image stored on Walrus
+    // Store a reference to an NFT image
     public fun store_nft_image_reference(
         nft_id: ID,
-        walrus_blob_id: ID,
-        blob_hash: vector<u8>,
+        image_url: String,
         ctx: &mut TxContext
     ): NFTImageReference {
         let owner = tx_context::sender(ctx);
@@ -40,16 +32,14 @@ module rivals_tournament::storage {
         let image_ref = NFTImageReference {
             id: object::new(ctx),
             nft_id,
-            walrus_blob_id,
-            blob_hash,
+            image_url,
             owner,
         };
         
         // Emit event
         event::emit(NFTImageStoredEvent {
             nft_id,
-            walrus_blob_id,
-            blob_hash,
+            image_url,
             owner,
         });
         
@@ -59,22 +49,16 @@ module rivals_tournament::storage {
     // Create and transfer an NFT image reference
     public entry fun create_and_transfer_nft_image_reference(
         nft_id: ID,
-        walrus_blob_id: ID,
-        blob_hash: vector<u8>,
+        image_url: String,
         ctx: &mut TxContext
     ) {
-        let image_ref = store_nft_image_reference(nft_id, walrus_blob_id, blob_hash, ctx);
+        let image_ref = store_nft_image_reference(nft_id, image_url, ctx);
         transfer::transfer(image_ref, tx_context::sender(ctx));
     }
     
-    // Get Walrus blob ID for an NFT image
-    public fun get_walrus_blob_id(image_ref: &NFTImageReference): ID {
-        image_ref.walrus_blob_id
-    }
-    
-    // Get blob hash for an NFT image
-    public fun get_blob_hash(image_ref: &NFTImageReference): vector<u8> {
-        image_ref.blob_hash
+    // Get image URL for an NFT
+    public fun get_image_url(image_ref: &NFTImageReference): String {
+        image_ref.image_url
     }
     
     // Get NFT ID associated with the image
@@ -87,11 +71,15 @@ module rivals_tournament::storage {
         image_ref.owner
     }
     
-    // Check if a Walrus blob exists (simplified version)
-    // In a real implementation, you would check the Walrus registry
-    public fun blob_exists(_blob_id: ID): bool {
+    // Check if an image URL is valid (simplified version)
+    public fun is_valid_url(_url: String): bool {
         // This is a placeholder. In a real implementation, you would
-        // check if the blob exists in the Walrus registry
+        // validate the URL format
         true
+    }
+    
+    // Transfer SUI coins to a recipient
+    public fun transfer_sui(coin: Coin<SUI>, recipient: address) {
+        sui::transfer::public_transfer(coin, recipient);
     }
 }

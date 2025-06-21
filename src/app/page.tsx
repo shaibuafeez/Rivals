@@ -16,28 +16,29 @@ const ConnectWalletButton = dynamic(() => import('@/components/ui/ConnectWalletB
   ssr: false
 });
 
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <Navbar />
       
-      <main className="pt-28 pb-8">
-        <div className="max-w-[1000px] mx-auto px-4">
+      <main className="pt-24 pb-12 w-full">
+        <div className="w-full px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-14"
+            className="text-center mb-12 mt-8"
           >
-            <h1 className="text-[32px] font-semibold text-gray-900 mb-4">
+            <h1 className="text-[28px] font-semibold text-gray-900 dark:text-white mb-3">
               NFT Tournaments To Battle For Sui Dominance
             </h1>
-            <p className="text-[15px] text-gray-600 max-w-[600px] mx-auto">
+            <p className="text-[14px] text-gray-600 dark:text-gray-300 max-w-[700px] mx-auto">
               Submit your NFT against others to see who comes out on top with daily, weekly, and monthly tournaments. Swipe left or right to vote!
             </p>
           </motion.div>
 
-          <div className="mt-8 mb-6">
+          <div className="mt-6 mb-4">
             <NFTCarousel />
           </div>
 
@@ -45,14 +46,31 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center -mt-4"
+            className="text-center mb-10"
           >
-            <ConnectWalletButton />
+            <div className="flex items-center justify-center gap-4">
+              <ConnectWalletButton />
+              <a 
+                href="/tournaments" 
+                className="px-6 py-3 bg-black text-white font-medium rounded-lg hover:bg-gray-900 transition-all duration-200 border border-gray-800 hover:border-gray-600 flex items-center gap-2 group"
+              >
+                Enter Tournament
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+            </div>
           </motion.div>
-
-          <div className="mt-12 flex justify-center space-x-8 text-xs text-gray-400">
-            <a href="#" className="hover:text-gray-600">Privacy</a>
-            <a href="#" className="hover:text-gray-600">Terms of service</a>
+          
+          <div className="mt-12 flex justify-center space-x-8 text-xs text-gray-400 dark:text-gray-500">
+            <span className="text-center">© 2024 Rivals • Built on Sui</span>
           </div>
         </div>
       </main>

@@ -46,18 +46,20 @@ export default function UpcomingTournament({ tournament }: UpcomingTournamentPro
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-2xl overflow-hidden shadow-xl mb-12"
+      className="bg-gradient-to-r from-indigo-900 to-ink-900 rounded-2xl overflow-hidden shadow-xl mb-12"
     >
-      <div className="relative">
-        <div className="absolute inset-0 bg-black/30 z-10"></div>
+      <div className="relative group">
+        <div className="absolute inset-0 bg-black/30 z-10 transition-all duration-300 group-hover:bg-black/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-50 blur-2xl transition-all duration-500 scale-110"></div>
         <div className="relative h-48 md:h-64 w-full overflow-hidden">
           <Image
             src={tournament.bannerImage || '/images/tournament-banner.jpg'}
             alt={tournament.name}
             fill
-            className="object-cover"
+            className="object-cover transition-all duration-300 group-hover:brightness-125 group-hover:scale-105"
           />
         </div>
+        <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(99,102,241,0)] group-hover:shadow-[inset_0_0_60px_rgba(99,102,241,0.5)] transition-all duration-500 z-10"></div>
         
         <div className="absolute top-4 left-4 z-20">
           <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-black text-xs font-medium rounded-full">
@@ -125,7 +127,7 @@ export default function UpcomingTournament({ tournament }: UpcomingTournamentPro
           
           <div className="flex items-center space-x-2">
             {tournament.isTokenGated && (
-              <span className="px-3 py-1 bg-purple-800 text-white text-xs font-medium rounded-full">
+              <span className="px-3 py-1 bg-ink-800 text-white text-xs font-medium rounded-full">
                 Token Gated
               </span>
             )}

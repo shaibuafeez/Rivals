@@ -51,6 +51,40 @@ const tailwindConfig = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Sophisticated black color palette
+        ink: {
+          50: '#FAFAFA',   // Near white for subtle contrasts
+          100: '#F5F5F5',  // Light gray for surfaces
+          200: '#E5E5E5',  // Soft borders
+          300: '#D4D4D4',  // Muted elements
+          400: '#A3A3A3',  // Disabled states
+          500: '#737373',  // Secondary text
+          600: '#525252',  // Primary UI elements
+          700: '#404040',  // Emphasis elements
+          800: '#262626',  // Dark surfaces
+          900: '#171717',  // Deep backgrounds
+          950: '#0A0A0A',  // True black
+        },
+        charcoal: {
+          DEFAULT: '#1A1A1A', // Rich charcoal
+          light: '#2A2A2A',   // Lighter variant
+          dark: '#0F0F0F',    // Darker variant
+        },
+        obsidian: {
+          DEFAULT: '#0D0D0D', // Deep obsidian black
+          soft: '#1C1C1C',    // Softer variant
+          shine: '#2F2F2F',   // With subtle shine
+        },
+        graphite: {
+          DEFAULT: '#2B2B2B', // Graphite gray-black
+          matte: '#232323',   // Matte finish
+          metallic: '#3A3A3A', // Metallic sheen
+        },
+        onyx: {
+          DEFAULT: '#0F0F0F', // Deep onyx
+          polished: '#181818', // Polished surface
+          raw: '#060606',     // Raw finish
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface TournamentFiltersProps {
@@ -8,17 +8,69 @@ interface TournamentFiltersProps {
   onTypeChange: (type: string) => void;
   onStatusChange: (status: number | null) => void;
   onSortChange: (sort: string) => void;
+  onEntryFeeChange?: (range: [number, number]) => void;
+  onParticipantsChange?: (range: [number, number]) => void;
+  onPrizePoolChange?: (range: [number, number]) => void;
 }
 
 export default function TournamentFilters({
   selectedType,
   onTypeChange,
   onStatusChange,
-  onSortChange
+  onSortChange,
+  onEntryFeeChange,
+  onParticipantsChange,
+  onPrizePoolChange
 }: TournamentFiltersProps) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<number | null>(null);
   const [selectedSort, setSelectedSort] = useState('newest');
+  const [entryFeeRange, setEntryFeeRange] = useState<[number, number]>([0, 100]);
+  const [participantsRange, setParticipantsRange] = useState<[number, number]>([0, 1000]);
+  const [prizePoolRange, setPrizePoolRange] = useState<[number, number]>([0, 10000]);
+  const [activeFilters, setActiveFilters] = useState(0);
+  
+  // Load saved filters from localStorage on component mount
+  useEffect(() => {
+    const savedFilters = localStorage.getItem('tournamentFilters');
+    if (savedFilters) {
+      try {
+        const parsedFilters = JSON.parse(savedFilters);
+        if (parsedFilters.selectedStatus !== undefined) {
+          setSelectedStatus(parsedFilters.selectedStatus);
+          onStatusChange(parsedFilters.selectedStatus);
+        }
+        if (parsedFilters.selectedSort) {
+          setSelectedSort(parsedFilters.selectedSort);
+          onSortChange(parsedFilters.selectedSort);
+        }
+        if (parsedFilters.entryFeeRange && onEntryFeeChange) {
+          setEntryFeeRange(parsedFilters.entryFeeRange);
+          onEntryFeeChange(parsedFilters.entryFeeRange);
+        }
+        if (parsedFilters.participantsRange && onParticipantsChange) {
+          setParticipantsRange(parsedFilters.participantsRange);
+          onParticipantsChange(parsedFilters.participantsRange);
+        }
+        if (parsedFilters.prizePoolRange && onPrizePoolChange) {
+          setPrizePoolRange(parsedFilters.prizePoolRange);
+          onPrizePoolChange(parsedFilters.prizePoolRange);
+        }
+      } catch (error) {
+        console.error('Error loading saved filters:', error);
+      }
+    }
+  }, [onStatusChange, onSortChange, onEntryFeeChange, onParticipantsChange, onPrizePoolChange]);
+  
+  // Count active filters
+  useEffect(() => {
+    let count = 0;
+    if (selectedStatus !== null) count++;
+    if (entryFeeRange[0] > 0 || entryFeeRange[1] < 100) count++;
+    if (participantsRange[0] > 0 || participantsRange[1] < 1000) count++;
+    if (prizePoolRange[0] > 0 || prizePoolRange[1] < 10000) count++;
+    setActiveFilters(count);
+  }, [selectedStatus, entryFeeRange, participantsRange, prizePoolRange]);
 
   const tournamentTypes = [
     { id: 'all', value: 0, name: 'All Tournaments' },
@@ -59,9 +111,14 @@ export default function TournamentFilters({
         
         <button
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-          className="flex items-center text-sm text-gray-600 hover:text-black transition-colors"
+          className="flex items-center text-sm text-gray-600 hover:text-black transition-colors relative"
         >
           <span className="mr-1">Filters</span>
+          {activeFilters > 0 && (
+            <span className="absolute -top-2 -right-2 bg-black text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+              {activeFilters}
+            </span>
+          )}
           <svg
             className={`w-4 h-4 transition-transform ${isAdvancedOpen ? 'rotate-180' : ''}`}
             fill="none"
@@ -173,6 +230,170 @@ export default function TournamentFilters({
                   }`}
                 >
                   Ending Soon
+                </button>
+              </div>
+            </div>
+            {/* Range Sliders */}
+            <div className="md:col-span-2 border-t border-gray-100 pt-6 mt-2">
+              <h3 className="text-sm font-medium mb-4">Advanced Filters</h3>
+              
+              {/* Entry Fee Range */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-xs font-medium">Entry Fee (SUI)</label>
+                  <div className="text-xs text-gray-500">
+                    {entryFeeRange[0]} - {entryFeeRange[1]}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="100" 
+                    value={entryFeeRange[0]}
+                    onChange={(e) => {
+                      const min = parseInt(e.target.value);
+                      const newRange: [number, number] = [min, Math.max(min, entryFeeRange[1])];
+                      setEntryFeeRange(newRange);
+                      onEntryFeeChange?.(newRange);
+                    }}
+                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="100" 
+                    value={entryFeeRange[1]}
+                    onChange={(e) => {
+                      const max = parseInt(e.target.value);
+                      const newRange: [number, number] = [Math.min(entryFeeRange[0], max), max];
+                      setEntryFeeRange(newRange);
+                      onEntryFeeChange?.(newRange);
+                    }}
+                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+              </div>
+              
+              {/* Participants Range */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-xs font-medium">Participants</label>
+                  <div className="text-xs text-gray-500">
+                    {participantsRange[0]} - {participantsRange[1]}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="1000" 
+                    step="10"
+                    value={participantsRange[0]}
+                    onChange={(e) => {
+                      const min = parseInt(e.target.value);
+                      const newRange: [number, number] = [min, Math.max(min, participantsRange[1])];
+                      setParticipantsRange(newRange);
+                      onParticipantsChange?.(newRange);
+                    }}
+                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="1000" 
+                    step="10"
+                    value={participantsRange[1]}
+                    onChange={(e) => {
+                      const max = parseInt(e.target.value);
+                      const newRange: [number, number] = [Math.min(participantsRange[0], max), max];
+                      setParticipantsRange(newRange);
+                      onParticipantsChange?.(newRange);
+                    }}
+                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+              </div>
+              
+              {/* Prize Pool Range */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-xs font-medium">Prize Pool (SUI)</label>
+                  <div className="text-xs text-gray-500">
+                    {prizePoolRange[0]} - {prizePoolRange[1]}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="10000" 
+                    step="100"
+                    value={prizePoolRange[0]}
+                    onChange={(e) => {
+                      const min = parseInt(e.target.value);
+                      const newRange: [number, number] = [min, Math.max(min, prizePoolRange[1])];
+                      setPrizePoolRange(newRange);
+                      onPrizePoolChange?.(newRange);
+                    }}
+                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="10000" 
+                    step="100"
+                    value={prizePoolRange[1]}
+                    onChange={(e) => {
+                      const max = parseInt(e.target.value);
+                      const newRange: [number, number] = [Math.min(prizePoolRange[0], max), max];
+                      setPrizePoolRange(newRange);
+                      onPrizePoolChange?.(newRange);
+                    }}
+                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+              </div>
+              
+              {/* Save/Reset Buttons */}
+              <div className="flex justify-between mt-6">
+                <button
+                  onClick={() => {
+                    // Reset all filters
+                    setSelectedStatus(null);
+                    onStatusChange(null);
+                    setSelectedSort('newest');
+                    onSortChange('newest');
+                    setEntryFeeRange([0, 100]);
+                    onEntryFeeChange?.([0, 100]);
+                    setParticipantsRange([0, 1000]);
+                    onParticipantsChange?.([0, 1000]);
+                    setPrizePoolRange([0, 10000]);
+                    onPrizePoolChange?.([0, 10000]);
+                    
+                    // Clear saved filters
+                    localStorage.removeItem('tournamentFilters');
+                  }}
+                  className="text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Reset All
+                </button>
+                
+                <button
+                  onClick={() => {
+                    // Save filters to localStorage
+                    const filtersToSave = {
+                      selectedStatus,
+                      selectedSort,
+                      entryFeeRange,
+                      participantsRange,
+                      prizePoolRange
+                    };
+                    localStorage.setItem('tournamentFilters', JSON.stringify(filtersToSave));
+                  }}
+                  className="text-xs bg-black text-white px-3 py-1 rounded hover:bg-gray-800 transition-colors"
+                >
+                  Save Filters
                 </button>
               </div>
             </div>

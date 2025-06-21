@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWallet } from '@/hooks/useWallet';
-import { TournamentService } from '@/services/tournamentService';
-import { useSuiClient } from '@mysten/dapp-kit';
-import { castToSuiClient } from '@/types/sui-client';
+import { TransactionStatus } from './TransactionStatus';
+import { NetworkStatus } from './NetworkStatus';
+import { SuiClient } from '@mysten/sui/client';
+import toast from 'react-hot-toast';
 
 interface CreateTournamentModalProps {
   isOpen: boolean;
@@ -32,51 +33,64 @@ export default function CreateTournamentModal({
   const [collectionInput, setCollectionInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   
-  const suiClient = useSuiClient();
-  const { executeTransaction, isAdmin, isConnected } = useWallet();
-  const tournamentService = new TournamentService(castToSuiClient(suiClient));
+  const { isConnected, txStatus, lastTxId, executeTransaction } = useWallet();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isAdmin) {
-      alert('Only website administrators can create tournaments');
+    // Allow any connected wallet to create tournaments
+    if (!isConnected) {
+      toast.error('Please connect your wallet to create tournaments');
       return;
     }
     
     if (!name || !description) {
-      alert('Please fill in all required fields');
+      toast.error('Please fill in all required fields');
       return;
     }
     
     try {
       setSubmitting(true);
       
-      // Prepare advanced options if they're enabled
-      const advancedOptions = showAdvancedOptions ? {
-        registrationHours,
-        minParticipants,
-        allowedCollections: allowedCollections.length > 0 ? allowedCollections : undefined,
-        isTokenGated
-      } : undefined;
+      // Import and use SimpleTournamentService
+      const { SimpleTournamentService } = await import('@/services/simpleTournamentService');
+      const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL! });
+      const PACKAGE_ID = process.env.NEXT_PUBLIC_SIMPLE_TOURNAMENT_PACKAGE_ID!;
+      const service = new SimpleTournamentService(suiClient, PACKAGE_ID);
       
-      const txb = tournamentService.createTournamentTransaction(
-        name,
-        description,
-        tournamentType,
-        durationHours,
-        Math.floor(entryFee * 1e9), // Convert to MIST
-        Math.floor(initialPrize * 1e9), // Convert to MIST
-        advancedOptions
-      );
+      // Simple tournaments have fixed duration, for now we'll use 72 hours
+      const duration = 72; // 72 hours for simple tournaments
       
-      await executeTransaction(txb);
       
-      onSuccess();
-      onClose();
+      try {
+        // Create tournament transaction
+        const tx = service.createTournamentTransaction(
+          name,
+          description,
+          '/images/tournament-banner-default.jpg', // Default banner
+          duration
+        );
+        
+        // Execute the transaction
+        const response = await executeTransaction(tx);
+        
+        
+        if (response && response.digest) {
+          // Wait a moment to ensure the blockchain has processed the transaction
+          setTimeout(() => {
+            onSuccess();
+            onClose();
+          }, 2000);
+        } else {
+          toast.error('Transaction may have failed. Please check the console for details.');
+        }
+      } catch (txError) {
+        console.error('Transaction execution error:', txError);
+        // Error is already handled by the useTournaments hook with toast notifications
+      }
     } catch (error) {
       console.error('Error creating tournament:', error);
-      alert('Failed to create tournament. Please try again.');
+      toast.error('Failed to create tournament. Please check the console for details.');
     } finally {
       setSubmitting(false);
     }
@@ -99,7 +113,19 @@ export default function CreateTournamentModal({
             className="bg-white rounded-xl p-6 max-w-md w-full max-h-[80vh] overflow-auto"
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-xl font-semibold mb-4">Create Tournament</h2>
+            <h2 className="text-xl font-semibold mb-4">Create Azur Guardian Tournament</h2>
+            
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3 mb-4">
+              <p className="text-yellow-700 dark:text-yellow-300 text-sm">
+                <strong>Note:</strong> This will create an Azur Guardian exclusive tournament. Only Azur Guardian NFTs will be able to participate.
+              </p>
+            </div>
+            
+            {/* Network Status */}
+            <div className="mb-4 p-2 bg-gray-50 rounded flex items-center justify-between">
+              <span className="text-sm text-gray-600">Network:</span>
+              <NetworkStatus />
+            </div>
             
             {!isConnected && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
@@ -107,14 +133,18 @@ export default function CreateTournamentModal({
               </div>
             )}
             
-            {isConnected && !isAdmin && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
-                <p className="text-red-700 text-sm">
-                  <strong>Admin Access Required</strong><br />
-                  Only website administrators can create tournaments.
-                </p>
+            {/* Transaction Status */}
+            {txStatus !== 'idle' && (
+              <div className="mb-4">
+                <TransactionStatus 
+                  status={txStatus} 
+                  txId={lastTxId || undefined}
+                  message={txStatus === 'loading' ? 'Creating tournament...' : undefined}
+                />
               </div>
             )}
+            
+            {/* Tournament creation form is now available to all connected wallets */}
             
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -320,14 +350,10 @@ export default function CreateTournamentModal({
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className={`px-4 py-2 text-sm text-white rounded-lg ${
-                    submitting
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-black hover:bg-gray-800'
-                  }`}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                  disabled={submitting || txStatus === 'loading' || !isConnected}
                 >
-                  {submitting ? 'Creating...' : 'Create Tournament'}
+                  {submitting || txStatus === 'loading' ? 'Creating...' : 'Create Tournament'}
                 </button>
               </div>
             </form>

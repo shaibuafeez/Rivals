@@ -17,12 +17,3 @@ export const NETWORK = {
   // Current network (mainnet, testnet, devnet, localnet)
   CURRENT: process.env.NEXT_PUBLIC_NETWORK || 'testnet',
 };
-
-// Walrus configuration
-export const WALRUS_CONFIG = {
-  // Walrus API endpoint
-  API_ENDPOINT: process.env.NEXT_PUBLIC_WALRUS_API_ENDPOINT || 'https://api.walrus.sui.io',
-  
-  // Walrus API key (if needed)
-  API_KEY: process.env.NEXT_PUBLIC_WALRUS_API_KEY || '',
-};

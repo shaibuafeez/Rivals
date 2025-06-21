@@ -66,8 +66,47 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deployment Instructions
+
+### Smart Contract Deployment
+
+1. Deploy the smart contract to the Sui network:
+
+```bash
+sui client publish --gas-budget 100000000
+```
+
+2. After deployment, note the package ID and registry object ID for configuration.
+
+### Walrus Integration
+
+This project uses [Walrus](https://github.com/MystenLabs/walrus) for off-chain NFT image storage. To configure Walrus:
+
+1. Register for a Walrus API key if needed
+2. Configure the environment variables (see below)
+
+### Environment Configuration
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```
+# Package IDs
+NEXT_PUBLIC_TOURNAMENT_PACKAGE_ID=0x... # Replace with your deployed package ID
+NEXT_PUBLIC_TOURNAMENT_REGISTRY_ID=0x... # Replace with your registry object ID
+NEXT_PUBLIC_WALRUS_PACKAGE_ID=0x... # Replace with Walrus package ID
+
+# Network
+NEXT_PUBLIC_NETWORK=testnet # or mainnet, devnet, localnet
+
+# Walrus Configuration
+NEXT_PUBLIC_WALRUS_API_ENDPOINT=https://api.walrus.sui.io
+NEXT_PUBLIC_WALRUS_API_KEY=your_api_key_here
+```
+
+### Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+When deploying to Vercel, add the environment variables in the Vercel project settings.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

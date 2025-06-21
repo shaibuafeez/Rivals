@@ -64,28 +64,28 @@ export default function TournamentStats({
       transition={{ duration: 0.5 }}
       className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10"
     >
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h4 className="text-sm text-gray-500 mb-1">Total Tournaments</h4>
-        <p className="text-3xl font-bold">{totalTournaments}</p>
-        <div className="mt-2 text-xs text-gray-400">All time</div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <h4 className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Tournaments</h4>
+        <p className="text-3xl font-bold dark:text-white">{totalTournaments}</p>
+        <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">All time</div>
       </div>
       
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h4 className="text-sm text-gray-500 mb-1">Active Tournaments</h4>
-        <p className="text-3xl font-bold">{activeTournaments}</p>
-        <div className="mt-2 text-xs text-gray-400">Join now</div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <h4 className="text-sm text-gray-500 dark:text-gray-400 mb-1">Active Tournaments</h4>
+        <p className="text-3xl font-bold dark:text-white">{activeTournaments}</p>
+        <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">Join now</div>
       </div>
       
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h4 className="text-sm text-gray-500 mb-1">Total Prize Pool</h4>
-        <p className="text-3xl font-bold">{animatedPrizePool.toFixed(0)} <span className="text-sm font-medium">SUI</span></p>
-        <div className="mt-2 text-xs text-gray-400">Up for grabs</div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <h4 className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Prize Pool</h4>
+        <p className="text-3xl font-bold dark:text-white">{animatedPrizePool.toFixed(0)} <span className="text-sm font-medium dark:text-gray-300">SUI</span></p>
+        <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">Up for grabs</div>
       </div>
       
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h4 className="text-sm text-gray-500 mb-1">Total Participants</h4>
-        <p className="text-3xl font-bold">{animatedParticipants.toLocaleString()}</p>
-        <div className="mt-2 text-xs text-gray-400">And growing</div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <h4 className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Participants</h4>
+        <p className="text-3xl font-bold dark:text-white">{animatedParticipants.toLocaleString()}</p>
+        <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">And growing</div>
       </div>
     </motion.div>
   );

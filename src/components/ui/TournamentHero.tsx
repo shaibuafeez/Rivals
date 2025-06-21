@@ -1,12 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function TournamentHero() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Only render animated elements after component is mounted on the client
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // Featured tournaments
   const featuredTournaments = [
@@ -55,31 +61,40 @@ export default function TournamentHero() {
         <div className="bg-[radial-gradient(#ffffff33_1px,transparent_1px)] bg-[size:20px_20px] absolute inset-0"></div>
       </div>
       
-      {/* Animated particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-white rounded-full"
-            initial={{ 
-              x: Math.random() * 100 + '%', 
-              y: Math.random() * 100 + '%', 
-              opacity: Math.random() * 0.5 + 0.3 
-            }}
-            animate={{ 
-              y: [null, Math.random() * 100 + '%'],
-              opacity: [null, Math.random() * 0.3 + 0.1]
-            }}
-            transition={{ 
-              duration: Math.random() * 10 + 10, 
-              repeat: Infinity, 
-              ease: 'linear' 
-            }}
-          />
-        ))}
-      </div>
+      {/* Animated particles - only rendered on client side */}
+      {isMounted && (
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => {
+            // Pre-compute random values to avoid hydration mismatches
+            const xPos = i * 5; // Deterministic positions instead of random
+            const yPos = (i * 7) % 100;
+            const opacityVal = 0.3 + (i % 10) / 20;
+            
+            return (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-white rounded-full"
+                initial={{ 
+                  x: `${xPos}%`, 
+                  y: `${yPos}%`, 
+                  opacity: opacityVal
+                }}
+                animate={{ 
+                  y: [`${yPos}%`, `${(yPos + 50) % 100}%`],
+                  opacity: [opacityVal, opacityVal * 0.5]
+                }}
+                transition={{ 
+                  duration: 15 + i, 
+                  repeat: Infinity, 
+                  ease: 'linear' 
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
       
-      <div className="max-w-[1200px] mx-auto px-4 relative z-10">
+      <div className="w-full px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 relative z-10">
         {/* Featured Tournament Carousel */}
         <div className="mb-16">
           <div className="relative overflow-hidden rounded-2xl shadow-2xl">
@@ -218,7 +233,7 @@ export default function TournamentHero() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-block bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-medium px-4 py-1 rounded-full mb-4"
+              className="inline-block bg-gradient-to-r from-ink-500 to-blue-500 text-white text-sm font-medium px-4 py-1 rounded-full mb-4"
             >
               Winner Takes All
             </motion.div>
@@ -257,7 +272,7 @@ export default function TournamentHero() {
                 Weekly Battles
               </div>
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm text-white flex items-center">
-                <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
+                <span className="w-2 h-2 bg-ink-400 rounded-full mr-2"></span>
                 Monthly Events
               </div>
             </motion.div>

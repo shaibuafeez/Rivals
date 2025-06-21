@@ -1,11 +1,11 @@
 #[test_only]
+#[allow(duplicate_alias)]
 module rivals_tournament::storage_tests {
     use sui::test_scenario;
     use sui::object;
     use sui::transfer;
     
     use std::string;
-    use std::vector;
     
     use rivals_tournament::storage::{Self, NFTImageReference};
     use rivals_tournament::nft_manager::{Self, RivalNFT};
@@ -46,21 +46,16 @@ module rivals_tournament::storage_tests {
             nft_manager::transfer_nft(nft, USER1);
         };
         
-        // Create a mock blob ID and hash
-        let blob_id = object::id_from_address(@0xBAADF00D); // Mock blob ID
-        let blob_hash = x"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
-        
         // Store NFT image reference
         test_scenario::next_tx(&mut scenario, USER1);
         {
             // Take the NFT from the sender
             let nft = test_scenario::take_from_sender<RivalNFT>(&scenario);
             
-            // Create NFT image reference
+            // Create NFT image reference with a URL string
             let image_ref = storage::store_nft_image_reference(
                 nft_id,
-                blob_id,
-                blob_hash,
+                string::utf8(b"https://example.com/nft1.png"),
                 test_scenario::ctx(&mut scenario)
             );
             
@@ -78,8 +73,7 @@ module rivals_tournament::storage_tests {
             
             // Verify the reference properties
             assert!(storage::get_nft_id(&image_ref) == nft_id, 0);
-            assert!(storage::get_walrus_blob_id(&image_ref) == blob_id, 0);
-            assert!(storage::get_blob_hash(&image_ref) == blob_hash, 0);
+            assert!(storage::get_image_url(&image_ref) == string::utf8(b"https://example.com/nft1.png"), 0);
             assert!(storage::get_owner(&image_ref) == USER1, 0);
             
             // Return the image reference
@@ -115,17 +109,12 @@ module rivals_tournament::storage_tests {
             nft_manager::transfer_nft(nft, USER1);
         };
         
-        // Create a mock blob ID and hash
-        let blob_id = object::id_from_address(@0xBAADF00D); // Mock blob ID
-        let blob_hash = x"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
-        
         // Create and transfer NFT image reference using the entry function
         test_scenario::next_tx(&mut scenario, USER1);
         {
             storage::create_and_transfer_nft_image_reference(
                 nft_id,
-                blob_id,
-                blob_hash,
+                string::utf8(b"https://example.com/nft1.png"),
                 test_scenario::ctx(&mut scenario)
             );
         };
@@ -137,8 +126,7 @@ module rivals_tournament::storage_tests {
             
             // Verify the reference properties
             assert!(storage::get_nft_id(&image_ref) == nft_id, 0);
-            assert!(storage::get_walrus_blob_id(&image_ref) == blob_id, 0);
-            assert!(storage::get_blob_hash(&image_ref) == blob_hash, 0);
+            assert!(storage::get_image_url(&image_ref) == string::utf8(b"https://example.com/nft1.png"), 0);
             assert!(storage::get_owner(&image_ref) == USER1, 0);
             
             // Return the image reference

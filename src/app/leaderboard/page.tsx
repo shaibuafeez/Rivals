@@ -84,8 +84,12 @@ export default function Leaderboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-8"
+            className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-8 relative"
           >
+            {/* Coming Soon Banner */}
+            <div className="absolute top-0 left-0 w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-1.5 text-center text-sm font-medium z-10">
+              Sample Data • Live Leaderboard Coming Soon
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>

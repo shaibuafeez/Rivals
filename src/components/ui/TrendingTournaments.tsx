@@ -33,10 +33,10 @@ export default function TrendingTournaments({ tournaments }: TrendingTournaments
       className="mb-12"
     >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Trending Tournaments</h2>
+        <h2 className="text-2xl font-bold dark:text-white">Trending Tournaments</h2>
         <Link 
           href="/tournaments" 
-          className="text-sm text-gray-600 hover:text-black transition-colors"
+          className="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors"
         >
           View all
         </Link>
@@ -54,10 +54,11 @@ export default function TrendingTournaments({ tournaments }: TrendingTournaments
             <Link href={`/tournaments/${tournament.id}`}>
               <div className="relative h-48 w-full overflow-hidden rounded-xl">
                 <Image
-                  src={tournament.featuredImage || '/images/tournament-banner.jpg'}
+                  src={`/images/tournaments/${tournament.id}.jpg`}
                   alt={tournament.name}
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).src = '/images/tournaments/default.jpg'; }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                 
@@ -74,7 +75,7 @@ export default function TrendingTournaments({ tournaments }: TrendingTournaments
                       </span>
                       
                       {tournament.isTokenGated && (
-                        <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                        <span className="px-2 py-1 bg-ink-100 text-ink-800 text-xs font-medium rounded-full">
                           Token Gated
                         </span>
                       )}
@@ -105,7 +106,7 @@ export default function TrendingTournaments({ tournaments }: TrendingTournaments
               </div>
               
               <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-full">
-                {tournament.prizePool} SUI Prize
+                {tournament.prizePool ? (Number(tournament.prizePool) / 1000000000).toFixed(2) : '0.00'} SUI Prize
               </div>
             </Link>
           </motion.div>

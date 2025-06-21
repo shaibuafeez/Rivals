@@ -1,0 +1,127 @@
+/* Tournament Type Color System */
+
+:root {
+  /* Daily Tournaments - Muted Green */
+  --tournament-daily-bg: hsl(120, 25%, 15%);
+  --tournament-daily-border: hsl(120, 30%, 25%);
+  --tournament-daily-text: hsl(120, 40%, 60%);
+  --tournament-daily-accent: hsl(120, 35%, 50%);
+  
+  /* Weekly Tournaments - Muted Blue */
+  --tournament-weekly-bg: hsl(210, 30%, 15%);
+  --tournament-weekly-border: hsl(210, 35%, 25%);
+  --tournament-weekly-text: hsl(210, 45%, 65%);
+  --tournament-weekly-accent: hsl(210, 40%, 55%);
+  
+  /* Monthly Tournaments - Muted Gold */
+  --tournament-monthly-bg: hsl(45, 30%, 15%);
+  --tournament-monthly-border: hsl(45, 35%, 25%);
+  --tournament-monthly-text: hsl(45, 50%, 65%);
+  --tournament-monthly-accent: hsl(45, 45%, 55%);
+  
+  /* Special Tournaments - Muted Purple */
+  --tournament-special-bg: hsl(270, 25%, 15%);
+  --tournament-special-border: hsl(270, 30%, 25%);
+  --tournament-special-text: hsl(270, 40%, 65%);
+  --tournament-special-accent: hsl(270, 35%, 55%);
+}
+
+/* Tournament type indicator styles */
+.tournament-type-indicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.tournament-type-daily {
+  background-color: var(--tournament-daily-accent);
+  box-shadow: 0 0 8px var(--tournament-daily-accent);
+}
+
+.tournament-type-weekly {
+  background-color: var(--tournament-weekly-accent);
+  box-shadow: 0 0 8px var(--tournament-weekly-accent);
+}
+
+.tournament-type-monthly {
+  background-color: var(--tournament-monthly-accent);
+  box-shadow: 0 0 8px var(--tournament-monthly-accent);
+}
+
+.tournament-type-special {
+  background-color: var(--tournament-special-accent);
+  box-shadow: 0 0 8px var(--tournament-special-accent);
+}
+
+/* Tournament card accent borders */
+.tournament-card-daily {
+  border-left: 3px solid var(--tournament-daily-accent);
+}
+
+.tournament-card-weekly {
+  border-left: 3px solid var(--tournament-weekly-accent);
+}
+
+.tournament-card-monthly {
+  border-left: 3px solid var(--tournament-monthly-accent);
+}
+
+.tournament-card-special {
+  border-left: 3px solid var(--tournament-special-accent);
+}
+
+/* Tournament status indicators with animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+.tournament-status-active {
+  position: relative;
+}
+
+.tournament-status-active::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse-glow 2s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+/* Tournament type badges */
+.tournament-badge-daily {
+  background: var(--tournament-daily-bg);
+  border: 1px solid var(--tournament-daily-border);
+  color: var(--tournament-daily-text);
+}
+
+.tournament-badge-weekly {
+  background: var(--tournament-weekly-bg);
+  border: 1px solid var(--tournament-weekly-border);
+  color: var(--tournament-weekly-text);
+}
+
+.tournament-badge-monthly {
+  background: var(--tournament-monthly-bg);
+  border: 1px solid var(--tournament-monthly-border);
+  color: var(--tournament-monthly-text);
+}
+
+.tournament-badge-special {
+  background: var(--tournament-special-bg);
+  border: 1px solid var(--tournament-special-border);
+  color: var(--tournament-special-text);
+}

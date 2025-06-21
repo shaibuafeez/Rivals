@@ -4,12 +4,11 @@ edition = "2024.beta" # Using the latest Move edition
 license = "Apache-2.0"
 authors = ["Rivals Team"]
 
-[dependencies]
-Walrus = { git = "https://github.com/MystenLabs/walrus.git", subdir = "contracts/walrus", rev = "main" }
+# Framework dependencies (Sui, MoveStdlib, etc.) are now automatically added
+# No need to specify them explicitly since Sui 1.45+
 
 [addresses]
 rivals_tournament = "0x0"
-walrus = "0x0" # Will be replaced with the actual Walrus package ID when deploying
 
 # Named addresses will be accessible in Move as `@name`. They're also exported:
 # for example, `std = "0x1"` is exported by the Standard Library.

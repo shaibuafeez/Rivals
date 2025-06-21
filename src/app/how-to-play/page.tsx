@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 // Dynamic imports to avoid SSR issues
 const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
@@ -118,7 +119,7 @@ export default function HowToPlay() {
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 left-0 w-full h-full bg-[url('/images/nft-skull.png')] bg-center bg-no-repeat bg-contain opacity-5"></div>
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-xl"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full -ml-32 -mb-32 blur-xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-ink-500/10 rounded-full -ml-32 -mb-32 blur-xl"></div>
             </div>
             
             <motion.div 
@@ -400,7 +401,7 @@ export default function HowToPlay() {
                 let iconEmoji = "🏆";
                 
                 if (tournament.name === "Weekly") {
-                  gradientClass = "from-purple-500 to-purple-600";
+                  gradientClass = "from-ink-500 to-ink-600";
                   iconEmoji = "🌟";
                 } else if (tournament.name === "Monthly") {
                   gradientClass = "from-amber-500 to-amber-600";
@@ -571,7 +572,7 @@ export default function HowToPlay() {
               
               <div className="relative">
                 {/* Flow diagram line */}
-                <div className="hidden md:block absolute top-1/2 left-[10%] right-[10%] h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 -translate-y-1/2 z-0 rounded-full"></div>
+                <div className="hidden md:block absolute top-1/2 left-[10%] right-[10%] h-1 bg-gradient-to-r from-blue-500 via-ink-500 to-amber-500 -translate-y-1/2 z-0 rounded-full"></div>
                 
                 <div className="flex flex-col md:flex-row justify-between relative z-10 gap-6">
                   {/* Step 1 */}
@@ -596,8 +597,8 @@ export default function HowToPlay() {
                     transition={{ duration: 0.6, delay: 0.3 }}
                     className="flex flex-col items-center text-center mb-8 md:mb-0 w-full md:w-1/4 group"
                   >
-                    <div className="w-16 h-16 bg-purple-500 text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 relative">
-                      <div className="absolute inset-0 bg-purple-400 rounded-2xl blur-md opacity-50 -z-10"></div>
+                    <div className="w-16 h-16 bg-ink-500 text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 relative">
+                      <div className="absolute inset-0 bg-ink-400 rounded-2xl blur-md opacity-50 -z-10"></div>
                       <span className="font-bold">2</span>
                     </div>
                     <h4 className="font-bold mb-2 text-white text-lg">Voting Period</h4>
@@ -676,14 +677,14 @@ export default function HowToPlay() {
               </div>
               
               <div className="mt-6 flex justify-center gap-4">
-                <a href="/tournaments" className="text-sm text-white/60 hover:text-white transition-colors duration-300 flex items-center gap-1">
+                <Link href="/tournaments" className="text-sm text-white/60 hover:text-white transition-colors duration-300 flex items-center gap-1">
                   <span>View Tournaments</span>
                   <span>→</span>
-                </a>
-                <a href="/leaderboard" className="text-sm text-white/60 hover:text-white transition-colors duration-300 flex items-center gap-1">
+                </Link>
+                <Link href="/leaderboard" className="text-sm text-white/60 hover:text-white transition-colors duration-300 flex items-center gap-1">
                   <span>Leaderboard</span>
                   <span>→</span>
-                </a>
+                </Link>
               </div>
             </div>
           </motion.div>

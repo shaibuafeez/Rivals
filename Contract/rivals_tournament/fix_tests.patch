@@ -1,0 +1,98 @@
+diff --git a/tests/prize_distribution_tests.move b/tests/prize_distribution_tests.move
+index abcdef123..fedcba987 100644
+--- a/tests/prize_distribution_tests.move
++++ b/tests/prize_distribution_tests.move
+@@ -56,16 +56,20 @@ module rivals_tournament::prize_distribution_tests {
+             // Create a tournament with fewer than 5 participants
+             // This should result in a winner-takes-all prize distribution
+             tournament::create_tournament(
+                 &mut registry,
+                 string::utf8(b"Winner Takes All Tournament"),
+                 string::utf8(b"Tournament with fewer than 5 participants"),
+                 tournament::TOURNAMENT_TYPE_DAILY,
+                 24, // 24 hours duration
+                 entry_fee,
+                 initial_prize,
+                 clock,
++                // Add missing parameters
++                vector::empty<String>(), // allowed_collections
++                false, // is_token_gated
+                 test_scenario::ctx(&mut scenario)
+             );
+             
+@@ -285,16 +289,20 @@ module rivals_tournament::prize_distribution_tests {
+             // Create a tournament with 5 or more participants
+             // This should result in a top-three prize distribution
+             tournament::create_tournament(
+                 &mut registry,
+                 string::utf8(b"Top Three Tournament"),
+                 string::utf8(b"Tournament with 5 or more participants"),
+                 tournament::TOURNAMENT_TYPE_DAILY,
+                 24, // 24 hours duration
+                 entry_fee,
+                 initial_prize,
+                 clock,
++                // Add missing parameters
++                vector::empty<String>(), // allowed_collections
++                false, // is_token_gated
+                 test_scenario::ctx(&mut scenario)
+             );
+             
+diff --git a/tests/storage_tests.move b/tests/storage_tests.move
+index abcdef123..fedcba987 100644
+--- a/tests/storage_tests.move
++++ b/tests/storage_tests.move
+@@ -57,11 +57,10 @@ module rivals_tournament::storage_tests {
+             // Store a reference to an NFT image
+             // This should create a new NFTImageReference object
+             let image_ref = storage::store_nft_image_reference(
+                 nft_id,
+-                blob_id,
+-                blob_hash,
++                string::utf8(b"https://example.com/nft.png"), // Use a string URL instead of blob ID/hash
+                 test_scenario::ctx(&mut scenario)
+             );
+             
+@@ -78,8 +77,8 @@ module rivals_tournament::storage_tests {
+             // Verify the NFTImageReference has the correct data
+             assert!(storage::get_nft_id(&image_ref) == nft_id, 0);
+-            assert!(storage::get_walrus_blob_id(&image_ref) == blob_id, 0);
+-            assert!(storage::get_blob_hash(&image_ref) == blob_hash, 0);
++            // Replace with available accessors
++            assert!(storage::get_image_url(&image_ref) == string::utf8(b"https://example.com/nft.png"), 0);
+             
+@@ -122,11 +121,10 @@ module rivals_tournament::storage_tests {
+             // Create and transfer an NFT image reference
+             // This should create a new NFTImageReference and transfer it to the sender
+             storage::create_and_transfer_nft_image_reference(
+                 nft_id,
+-                blob_id,
+-                blob_hash,
++                string::utf8(b"https://example.com/nft.png"), // Use a string URL instead of blob ID/hash
+                 test_scenario::ctx(&mut scenario)
+             );
+             
+@@ -137,8 +135,8 @@ module rivals_tournament::storage_tests {
+             // Verify the NFTImageReference has the correct data
+             assert!(storage::get_nft_id(&image_ref) == nft_id, 0);
+-            assert!(storage::get_walrus_blob_id(&image_ref) == blob_id, 0);
+-            assert!(storage::get_blob_hash(&image_ref) == blob_hash, 0);
++            // Replace with available accessors
++            assert!(storage::get_image_url(&image_ref) == string::utf8(b"https://example.com/nft.png"), 0);
+             
+diff --git a/sources/storage.move b/sources/storage.move
+index abcdef123..fedcba987 100644
+--- a/sources/storage.move
++++ b/sources/storage.move
+@@ -42,6 +42,11 @@ module rivals_tournament::storage {
+         object::id(&image_ref)
+     }
+     
++    // Add accessor for image URL
++    public fun get_image_url(image_ref: &NFTImageReference): String {
++        image_ref.image_url
++    }
++    
+     // Create and transfer an NFT image reference to the sender
+     public entry fun create_and_transfer_nft_image_reference(
+         nft_id: ID,

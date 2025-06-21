@@ -18,7 +18,7 @@ export default function TournamentCategories() {
       name: 'Collection Battles',
       description: 'Compete with your NFT collections',
       icon: '/images/icons/collection.svg',
-      color: 'from-purple-500 to-pink-400',
+      color: 'from-ink-500 to-ink-400',
       link: '/tournaments?type=collections'
     },
     {

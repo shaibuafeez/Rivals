@@ -2,18 +2,39 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { Tournament } from '@/services/tournamentService';
 
 interface TournamentSearchProps {
   tournaments: Tournament[];
   onSelectTournament: (tournamentId: string) => void;
+  onSearch?: (query: string) => void;
+  recentSearches?: string[];
 }
 
-export default function TournamentSearch({ tournaments, onSelectTournament }: TournamentSearchProps) {
+export default function TournamentSearch({ tournaments, onSelectTournament, onSearch }: TournamentSearchProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [showRecent, setShowRecent] = useState(false);
   const [filteredTournaments, setFilteredTournaments] = useState<Tournament[]>([]);
+  const [savedSearches, setSavedSearches] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load saved searches from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('recentSearches');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setSavedSearches(parsed.slice(0, 5)); // Keep only the 5 most recent
+        }
+      } catch (error) {
+        console.error('Error loading saved searches:', error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
@@ -22,11 +43,40 @@ export default function TournamentSearch({ tournaments, onSelectTournament }: To
     }
 
     const query = searchQuery.toLowerCase();
-    const results = tournaments.filter(
-      tournament => 
-        tournament.name.toLowerCase().includes(query) || 
-        tournament.description.toLowerCase().includes(query)
-    ).slice(0, 5); // Limit to 5 results
+    
+    // Enhanced search with multiple criteria
+    const results = tournaments.filter(tournament => {
+      // Search in name (highest priority)
+      if (tournament.name.toLowerCase().includes(query)) {
+        return true;
+      }
+      
+      // Search in description
+      if (tournament.description && tournament.description.toLowerCase().includes(query)) {
+        return true;
+      }
+      
+      // Search by tournament type
+      const typeLabels = ['daily', 'weekly', 'monthly'];
+      const typeIndex = typeLabels.findIndex(label => label === query);
+      if (typeIndex !== -1 && tournament.tournamentType === typeIndex + 1) {
+        return true;
+      }
+      
+      // Search by status
+      const statusLabels = ['registration', 'active', 'ended'];
+      const statusIndex = statusLabels.findIndex(label => label === query);
+      if (statusIndex !== -1 && tournament.status === statusIndex) {
+        return true;
+      }
+      
+      // Search by entry fee (free tournaments)
+      if ((query === 'free' || query === 'free entry') && tournament.entryFee === '0') {
+        return true;
+      }
+      
+      return false;
+    }).slice(0, 8); // Limit to 8 results
     
     setFilteredTournaments(results);
   }, [searchQuery, tournaments]);
@@ -47,22 +97,54 @@ export default function TournamentSearch({ tournaments, onSelectTournament }: To
 
   const handleSelect = (tournamentId: string) => {
     onSelectTournament(tournamentId);
+    
+    // Save search query to recent searches
+    if (searchQuery.trim()) {
+      const newSearches = [searchQuery, ...savedSearches.filter(s => s !== searchQuery)].slice(0, 5);
+      setSavedSearches(newSearches);
+      localStorage.setItem('recentSearches', JSON.stringify(newSearches));
+    }
+    
     setSearchQuery('');
     setIsOpen(false);
+    setShowRecent(false);
+  };
+  
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      // Save search query
+      const newSearches = [searchQuery, ...savedSearches.filter(s => s !== searchQuery)].slice(0, 5);
+      setSavedSearches(newSearches);
+      localStorage.setItem('recentSearches', JSON.stringify(newSearches));
+      
+      // Trigger search callback if provided
+      onSearch?.(searchQuery);
+    }
   };
 
   return (
     <div ref={searchRef} className="relative w-full max-w-md mx-auto mb-8">
       <div className="relative">
         <input
+          ref={inputRef}
           type="text"
           placeholder="Search tournaments..."
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
             setIsOpen(true);
+            setShowRecent(e.target.value === '');
           }}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+            setIsOpen(true);
+            setShowRecent(searchQuery === '');
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch();
+              inputRef.current?.blur();
+            }
+          }}
           className="w-full px-4 py-3 pl-10 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/10 text-sm"
         />
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -86,7 +168,7 @@ export default function TournamentSearch({ tournaments, onSelectTournament }: To
       </div>
 
       <AnimatePresence>
-        {isOpen && filteredTournaments.length > 0 && (
+        {isOpen && (searchQuery.trim() !== '' ? filteredTournaments.length > 0 : showRecent && savedSearches.length > 0) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -94,8 +176,27 @@ export default function TournamentSearch({ tournaments, onSelectTournament }: To
             transition={{ duration: 0.2 }}
             className="absolute z-10 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden"
           >
+            {/* Recent Searches */}
+            {searchQuery.trim() === '' && showRecent && savedSearches.length > 0 && (
+              <div className="px-4 py-2 bg-gray-50">
+                <h3 className="text-xs font-medium text-gray-500 mb-2">Recent Searches</h3>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {savedSearches.map((search, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSearchQuery(search)}
+                      className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 transition-colors"
+                    >
+                      {search}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Search Results */}
             <ul className="divide-y divide-gray-100">
-              {filteredTournaments.map((tournament) => (
+              {searchQuery.trim() !== '' && filteredTournaments.map((tournament) => (
                 <li
                   key={tournament.id}
                   onClick={() => handleSelect(tournament.id)}
@@ -104,11 +205,15 @@ export default function TournamentSearch({ tournaments, onSelectTournament }: To
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-gray-100 rounded-md overflow-hidden mr-3 flex-shrink-0">
                       {tournament.featuredImage && (
-                        <img
-                          src={tournament.featuredImage}
-                          alt={tournament.name}
-                          className="w-full h-full object-cover"
-                        />
+                        <div className="w-full h-full relative">
+                          <Image
+                            src={tournament.featuredImage}
+                            alt={tournament.name}
+                            fill
+                            sizes="32px"
+                            className="object-cover"
+                          />
+                        </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">

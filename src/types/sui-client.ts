@@ -8,7 +8,28 @@
  * to our service classes
  */
 export function castToSuiClient(client: any): any {
-  return client;
+  // Create a wrapper around the client that adapts the getObject method
+  return {
+    ...client,
+    // Adapt the getObject method to match our expected interface
+    getObject: (params: any) => {
+      console.log('Calling getObject with params:', params);
+      // If params is an object with id, use it directly
+      if (params && typeof params === 'object' && params.id) {
+        return client.getObject(params);
+      }
+      // If params is a string, convert it to the expected format
+      if (typeof params === 'string') {
+        console.log('Converting string param to object format:', params);
+        return client.getObject({
+          id: params,
+          options: { showContent: true }
+        });
+      }
+      // Default case
+      return client.getObject(params);
+    }
+  };
 }
 
 // For type annotations only

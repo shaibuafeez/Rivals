@@ -1,9 +1,11 @@
 module rivals_tournament::scripts {
-    use sui::tx_context::TxContext;
+    use std::string;
+    use std::string::String;
+    // vector is provided by default
+    // TxContext is provided by default
+    use sui::clock::Clock;
     use sui::coin::Coin;
     use sui::sui::SUI;
-    use sui::clock::Clock;
-    use std::string;
     
     use rivals_tournament::tournament::{Self, TournamentRegistry};
 
@@ -24,6 +26,15 @@ module rivals_tournament::scripts {
         let description_string = string::utf8(description);
         
         // Call the tournament module's create_tournament function
+        // Create an empty vector for allowed collections
+        let allowed_collections = vector::empty<String>();
+        
+        // Set token gating flag to false by default
+        let is_token_gated = false;
+        
+        // Set Azur Guardian exclusive flag to false by default
+        let is_azur_guardian_exclusive = false;
+        
         tournament::create_tournament(
             registry,
             name_string,
@@ -33,6 +44,9 @@ module rivals_tournament::scripts {
             entry_fee,
             initial_prize,
             clock,
+            allowed_collections,
+            is_token_gated,
+            is_azur_guardian_exclusive,
             ctx
         );
     }

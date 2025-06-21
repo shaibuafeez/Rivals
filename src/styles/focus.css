@@ -1,0 +1,46 @@
+/* Focus indicators for keyboard navigation */
+
+/* Default focus style for all interactive elements */
+*:focus-visible {
+  outline: 2px solid #8b5cf6; /* Purple-500 */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Custom focus for buttons */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25);
+}
+
+/* Focus for form inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: -2px;
+  border-color: #8b5cf6;
+}
+
+/* Focus for cards and clickable containers */
+.card:focus-visible,
+.tournament-card:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.15);
+}
+
+/* Disable default browser outline */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  *:focus-visible {
+    outline-width: 3px;
+    outline-color: currentColor;
+  }
+}

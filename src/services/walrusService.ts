@@ -1,9 +1,15 @@
-import { TransactionBlock } from '@mysten/sui.js/transactions';
+import { Transaction } from '@mysten/sui/transactions';
 import { type SuiClient } from '@/types/sui-client';
-import { PACKAGE_IDS, WALRUS_CONFIG } from '@/config/env';
+import { PACKAGE_IDS } from '@/config/env';
 
 // Get Walrus package ID from environment configuration
 const WALRUS_PACKAGE_ID = PACKAGE_IDS.WALRUS_PACKAGE_ID;
+
+// Hardcoded Walrus configuration
+const WALRUS_CONFIG = {
+  API_ENDPOINT: process.env.NEXT_PUBLIC_WALRUS_API_ENDPOINT || 'https://api.walrus.sui.io',
+  API_KEY: process.env.NEXT_PUBLIC_WALRUS_API_KEY || '',
+};
 
 export class WalrusService {
   constructor(private suiClient: SuiClient) {}
@@ -49,7 +55,6 @@ export class WalrusService {
       
       // Fallback to mock implementation if Walrus API is not available
       // This is useful for development and testing
-      console.warn('Falling back to mock Walrus implementation');
       
       // Generate a mock blob ID
       const mockBlobId = `0x${Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
@@ -74,8 +79,8 @@ export class WalrusService {
     blobId: string, 
     blobHash: string, 
     size: number
-  ): TransactionBlock {
-    const txb = new TransactionBlock();
+  ): Transaction {
+    const txb = new Transaction();
     
     // This would call the actual Walrus blob registration function
     // For now, we'll just create a placeholder transaction
@@ -83,9 +88,9 @@ export class WalrusService {
     txb.moveCall({
       target: `${WALRUS_PACKAGE_ID}::blob::register_blob`,
       arguments: [
-        txb.pure(blobId),
-        txb.pure(blobHash),
-        txb.pure(size),
+        txb.pure.string(blobId),
+        txb.pure.string(blobHash),
+        txb.pure.u64(size),
       ],
     });
     

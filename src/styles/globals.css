@@ -1,6 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Import focus styles for accessibility */
+@import './focus.css';
+
+/* Import tournament color system */
+@import './tournament-colors.css';
+
+/* Import animations and micro-interactions */
+@import './animations.css';
+
+/* Core Design System Variables */
+:root {
+  /* 60-30-10 Color System */
+  --bg-dark: #0A0A0A;           /* 60% - Main background */
+  --surface-dark: #1A1A1A;      /* 30% - Card surfaces */
+  --accent-gold: #FFD700;       /* 10% - Winner highlights */
+  --accent-electric: #00F0FF;   /* Secondary accent */
+  
+  /* Gradient Accents */
+  --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  --gradient-electric: linear-gradient(135deg, #00F0FF 0%, #0066FF 100%);
+  --gradient-winner: linear-gradient(135deg, #FFD700 0%, #FF6B6B 50%, #4ECDC4 100%);
+  
+  /* Typography Scale (Modular 1.25 ratio) */
+  --text-xs: 0.64rem;
+  --text-sm: 0.8rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.563rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+  --text-4xl: 3.052rem;
+  --text-5xl: 3.815rem;
+  
+  /* Natural Easing Curves */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+  
+  /* Duration Scales */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+  --duration-slower: 1000ms;
+}
  
 @layer base {
   :root {
@@ -24,6 +70,9 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+    --toast-background: #ffffff;
+    --toast-text: #333333;
+    --toast-border: #e2e8f0;
   }
  
   .dark {
@@ -46,6 +95,9 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    --toast-background: #1f2937;
+    --toast-text: #f3f4f6;
+    --toast-border: #374151;
   }
 }
  
@@ -55,5 +107,65 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
+@layer utilities {
+  /* Sophisticated black gradients */
+  .gradient-ink {
+    @apply bg-gradient-to-r from-ink-900 to-ink-700;
+  }
+  
+  .gradient-ink-radial {
+    background: radial-gradient(circle at center, theme('colors.ink.700'), theme('colors.ink.950'));
+  }
+  
+  .gradient-charcoal {
+    @apply bg-gradient-to-br from-charcoal-dark via-charcoal to-charcoal-light;
+  }
+  
+  .gradient-obsidian {
+    @apply bg-gradient-to-r from-obsidian via-obsidian-soft to-obsidian-shine;
+  }
+  
+  .gradient-graphite {
+    @apply bg-gradient-to-b from-graphite-matte to-graphite-metallic;
+  }
+  
+  .gradient-onyx {
+    @apply bg-gradient-to-tr from-onyx-raw via-onyx to-onyx-polished;
+  }
+  
+  /* Text gradients */
+  .text-gradient-ink {
+    @apply bg-gradient-to-r from-ink-900 to-ink-600 bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-charcoal {
+    @apply bg-gradient-to-r from-charcoal-dark to-charcoal-light bg-clip-text text-transparent;
+  }
+  
+  /* Sophisticated shadows */
+  .shadow-ink {
+    box-shadow: 0 4px 6px -1px rgb(23 23 23 / 0.1), 0 2px 4px -2px rgb(23 23 23 / 0.1);
+  }
+  
+  .shadow-ink-lg {
+    box-shadow: 0 10px 15px -3px rgb(23 23 23 / 0.1), 0 4px 6px -4px rgb(23 23 23 / 0.1);
+  }
+  
+  /* Elegant borders */
+  .border-gradient-ink {
+    @apply relative;
+  }
+  
+  .border-gradient-ink::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg p-[1px] -z-10;
+    background: linear-gradient(135deg, theme('colors.ink.600'), theme('colors.ink.900'));
   }
 }
