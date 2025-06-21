@@ -15,5 +15,5 @@ export const PACKAGE_IDS = {
 // Network configuration
 export const NETWORK = {
   // Current network (mainnet, testnet, devnet, localnet)
-  CURRENT: process.env.NEXT_PUBLIC_NETWORK || 'testnet',
+  CURRENT: process.env.NEXT_PUBLIC_NETWORK || 'mainnet',
 };
