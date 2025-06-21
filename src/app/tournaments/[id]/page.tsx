@@ -135,6 +135,7 @@ export default function TournamentDetails() {
   const [currentRound, setCurrentRound] = useState(1);
   const [totalRounds, setTotalRounds] = useState(0);
   const [viewMode, setViewMode] = useState<'bracket' | 'battle'>('battle');
+  const [lastVoteTime, setLastVoteTime] = useState<number | null>(null);
   
   // Add logging for modal state changes
   useEffect(() => {
@@ -146,6 +147,74 @@ export default function TournamentDetails() {
     if (showEntryModal) {
     }
   }, [showEntryModal]);
+  
+  // Add periodic refresh for vote counts during active tournaments
+  useEffect(() => {
+    if (!tournament || tournament.status !== 1 || !bracketMatches.length) return;
+    
+    const refreshInterval = setInterval(async () => {
+      try {
+        // Skip if user just voted (to avoid overwriting optimistic updates)
+        if (lastVoteTime && Date.now() - lastVoteTime < 5000) return;
+        
+        console.log('🔄 Periodic vote count refresh...');
+        const { SimpleTournamentService } = await import('@/services/simpleTournamentService');
+        const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL! });
+        const PACKAGE_ID = process.env.NEXT_PUBLIC_SIMPLE_TOURNAMENT_PACKAGE_ID!;
+        const service = new SimpleTournamentService(suiClient, PACKAGE_ID);
+        
+        const entries = await service.getTournamentEntries(tournamentId);
+        const updatedEntries = entries.map(entry => ({
+          id: entry.nftId,
+          nftId: entry.nftId,
+          owner: entry.submitter,
+          name: `NFT ${entry.nftId.slice(0, 8)}...`,
+          imageUrl: entry.imageUrl,
+          votes: entry.voteCount,
+          tournamentId: tournamentId
+        }));
+        
+        // Only update if there are actual changes
+        const hasChanges = updatedEntries.some(newEntry => {
+          const oldEntry = nftEntries.find(e => e.nftId === newEntry.nftId);
+          return !oldEntry || oldEntry.votes !== newEntry.votes;
+        });
+        
+        if (hasChanges) {
+          console.log('✅ Vote counts changed, updating UI');
+          setNftEntries(updatedEntries);
+          
+          // Update bracket matches with real vote counts
+          setBracketMatches(prev => prev.map(match => {
+            const nft1Entry = updatedEntries.find(e => e.nftId === match.nft1?.id);
+            const nft2Entry = updatedEntries.find(e => e.nftId === match.nft2?.id);
+            
+            return {
+              ...match,
+              nft1: match.nft1 && nft1Entry ? { ...match.nft1, votes: nft1Entry.votes } : match.nft1,
+              nft2: match.nft2 && nft2Entry ? { ...match.nft2, votes: nft2Entry.votes } : match.nft2
+            };
+          }));
+          
+          // Update current match if needed
+          setCurrentMatch(prev => {
+            if (!prev) return prev;
+            const nft1Entry = updatedEntries.find(e => e.nftId === prev.nft1?.id);
+            const nft2Entry = updatedEntries.find(e => e.nftId === prev.nft2?.id);
+            return {
+              ...prev,
+              nft1: prev.nft1 && nft1Entry ? { ...prev.nft1, votes: nft1Entry.votes } : prev.nft1,
+              nft2: prev.nft2 && nft2Entry ? { ...prev.nft2, votes: nft2Entry.votes } : prev.nft2
+            };
+          });
+        }
+      } catch (error) {
+        console.error('Error in periodic refresh:', error);
+      }
+    }, 15000); // Refresh every 15 seconds
+    
+    return () => clearInterval(refreshInterval);
+  }, [tournament?.status, tournamentId, lastVoteTime, nftEntries.length, bracketMatches.length]);
   
   // Generate brackets when entries change
   useEffect(() => {
@@ -500,12 +569,27 @@ export default function TournamentDetails() {
       
       console.log('🗳️ Voting for NFT:', nftId, 'in tournament:', tournament.id);
       
+      // Check if user has already voted
+      const hasVoted = await service.hasUserVoted(tournament.id, address);
+      if (hasVoted) {
+        console.log('⚠️ User has already voted in this tournament');
+        toast.error('You have already voted in this tournament!');
+        setVotingForNFT(null);
+        return;
+      }
+      
       // Create vote transaction
       const tx = service.voteTransaction(tournament.id, nftId);
       const result = await executeTransaction(tx);
       
+      console.log('Vote transaction result:', result);
+      
       if (result?.effects?.status?.status === 'success') {
         console.log('✅ Vote successful!');
+        console.log('Transaction digest:', result.digest);
+        
+        // Mark the vote time to prevent immediate refresh
+        setLastVoteTime(Date.now());
         
         // Show success animation
         setShowVoteSuccess(true);
@@ -542,36 +626,76 @@ export default function TournamentDetails() {
           };
         });
         
-        // Refresh tournament entries after voting
-        setTimeout(async () => {
-          try {
-            const entries = await service.getTournamentEntries(tournament.id);
-            const updatedEntries = entries.map(entry => ({
-              id: entry.nftId,
-              nftId: entry.nftId,
-              owner: entry.submitter,
-              name: `NFT ${entry.nftId.slice(0, 8)}...`,
-              imageUrl: entry.imageUrl,
-              votes: entry.voteCount,
-              tournamentId: tournament.id
-            }));
-            setNftEntries(updatedEntries);
-            
-            // Update bracket matches with real vote counts
-            setBracketMatches(prev => prev.map(match => {
-              const nft1Entry = updatedEntries.find(e => e.nftId === match.nft1?.id);
-              const nft2Entry = updatedEntries.find(e => e.nftId === match.nft2?.id);
+        // Refresh tournament entries after voting with retry logic
+        const refreshVoteCounts = async (retryCount = 0) => {
+          const maxRetries = 5;
+          const delay = Math.min(1000 * Math.pow(1.5, retryCount), 5000); // Exponential backoff
+          
+          setTimeout(async () => {
+            try {
+              console.log(`🔄 Refreshing vote counts (attempt ${retryCount + 1}/${maxRetries})...`);
+              const entries = await service.getTournamentEntries(tournament.id);
+              console.log('Raw entries from service:', entries);
               
-              return {
-                ...match,
-                nft1: match.nft1 && nft1Entry ? { ...match.nft1, votes: nft1Entry.votes } : match.nft1,
-                nft2: match.nft2 && nft2Entry ? { ...match.nft2, votes: nft2Entry.votes } : match.nft2
-              };
-            }));
-          } catch (error) {
-            console.error('Error refreshing entries after vote:', error);
-          }
-        }, 1000);
+              const updatedEntries = entries.map(entry => ({
+                id: entry.nftId,
+                nftId: entry.nftId,
+                owner: entry.submitter,
+                name: `NFT ${entry.nftId.slice(0, 8)}...`,
+                imageUrl: entry.imageUrl,
+                votes: entry.voteCount,
+                tournamentId: tournament.id
+              }));
+              
+              console.log('Mapped entries with votes:', updatedEntries.map(e => ({ nftId: e.nftId, votes: e.votes })));
+              
+              // Check if vote was actually recorded
+              const votedEntry = updatedEntries.find(e => e.nftId === nftId);
+              const oldEntry = nftEntries.find(e => e.nftId === nftId);
+              
+              if (votedEntry && oldEntry && votedEntry.votes === oldEntry.votes && retryCount < maxRetries - 1) {
+                console.log('⏳ Vote count not updated yet, retrying...');
+                refreshVoteCounts(retryCount + 1);
+                return;
+              }
+              
+              console.log('✅ Vote counts updated successfully');
+              setNftEntries(updatedEntries);
+              
+              // Update bracket matches with real vote counts
+              setBracketMatches(prev => prev.map(match => {
+                const nft1Entry = updatedEntries.find(e => e.nftId === match.nft1?.id);
+                const nft2Entry = updatedEntries.find(e => e.nftId === match.nft2?.id);
+                
+                return {
+                  ...match,
+                  nft1: match.nft1 && nft1Entry ? { ...match.nft1, votes: nft1Entry.votes } : match.nft1,
+                  nft2: match.nft2 && nft2Entry ? { ...match.nft2, votes: nft2Entry.votes } : match.nft2
+                };
+              }));
+              
+              // Update current match state
+              setCurrentMatch(prev => {
+                if (!prev) return prev;
+                const nft1Entry = updatedEntries.find(e => e.nftId === prev.nft1?.id);
+                const nft2Entry = updatedEntries.find(e => e.nftId === prev.nft2?.id);
+                return {
+                  ...prev,
+                  nft1: prev.nft1 && nft1Entry ? { ...prev.nft1, votes: nft1Entry.votes } : prev.nft1,
+                  nft2: prev.nft2 && nft2Entry ? { ...prev.nft2, votes: nft2Entry.votes } : prev.nft2
+                };
+              });
+            } catch (error) {
+              console.error('Error refreshing entries after vote:', error);
+              if (retryCount < maxRetries - 1) {
+                refreshVoteCounts(retryCount + 1);
+              }
+            }
+          }, delay);
+        };
+        
+        // Start the refresh process
+        refreshVoteCounts();
         
         toast.success('Vote submitted successfully!');
       } else {

@@ -8,8 +8,8 @@ interface CacheEntry<T> {
   data: T;
 }
 
-// Default cache duration in milliseconds (2 minutes)
-const DEFAULT_CACHE_DURATION = 2 * 60 * 1000;
+// Default cache duration in milliseconds (30 seconds for more responsive updates)
+const DEFAULT_CACHE_DURATION = 30 * 1000;
 
 /**
  * Custom hook for caching tournament data with retry logic
