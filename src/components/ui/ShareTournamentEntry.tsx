@@ -39,7 +39,7 @@ export default function ShareTournamentEntry({ tournamentId, entryId, tournament
   // Animation variants for smoother transitions
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } }
   };
 
   const itemVariants = {

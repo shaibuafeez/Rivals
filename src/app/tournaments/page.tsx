@@ -262,7 +262,7 @@ export default function TournamentsPage() {
                             {/* Stats Grid */}
                             <div className="grid grid-cols-3 gap-4 mb-6">
                               <div className="border border-gray-800 p-3">
-                                <div className="text-2xl font-bold text-white">{tournament.entries?.length || 0}</div>
+                                <div className="text-2xl font-bold text-white">{tournament.totalParticipants || 0}</div>
                                 <div className="text-xs text-gray-400 uppercase">Players</div>
                               </div>
                               <div className="border border-gray-800 p-3">
@@ -419,14 +419,14 @@ export default function TournamentsPage() {
                           {/* Visual Stats Bar */}
                           <div className="mb-6">
                             <div className="flex justify-between text-xs text-gray-400 mb-2">
-                              <span>{tournament.entries?.length || 0} / {tournament.maxEntries || 100} PLAYERS</span>
-                              <span>{((tournament.entries?.length || 0) / (tournament.maxEntries || 100) * 100).toFixed(0)}%</span>
+                              <span>{tournament.totalParticipants || 0} / 100 PLAYERS</span>
+                              <span>{((tournament.totalParticipants || 0) / 100 * 100).toFixed(0)}%</span>
                             </div>
                             <div className="h-1 bg-gray-900 relative">
                               <motion.div 
                                 className="absolute top-0 left-0 h-full bg-white"
                                 initial={{ width: 0 }}
-                                animate={{ width: `${((tournament.entries?.length || 0) / (tournament.maxEntries || 100) * 100)}%` }}
+                                animate={{ width: `${((tournament.totalParticipants || 0) / 100 * 100)}%` }}
                                 transition={{ duration: 1, ease: "easeOut" }}
                               />
                             </div>

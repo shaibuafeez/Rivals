@@ -216,7 +216,7 @@ export default function NFTSelectionModal({
   
   const modalVariants = {
     hidden: { scale: 0.95, opacity: 0, y: 10 },
-    visible: { scale: 1, opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } },
+    visible: { scale: 1, opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 30 } },
     exit: { scale: 0.95, opacity: 0, y: 10, transition: { duration: 0.2 } }
   };
 

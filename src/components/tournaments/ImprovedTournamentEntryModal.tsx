@@ -119,7 +119,7 @@ export default function ImprovedTournamentEntryModal({
       
       signAndExecute(
         {
-          transaction: tx,
+          transaction: tx as any, // Type cast to handle version mismatch
         },
         {
           onSuccess: (result) => {

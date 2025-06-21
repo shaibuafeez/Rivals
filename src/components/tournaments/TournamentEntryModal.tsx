@@ -163,7 +163,7 @@ export default function TournamentEntryModal({
       
       signAndExecute(
         {
-          transaction: tx,
+          transaction: tx as any, // Type cast to handle version mismatch
         },
         {
           onSuccess: (result) => {
@@ -245,7 +245,7 @@ export default function TournamentEntryModal({
       // Step 4: Execute transaction
       signAndExecute(
         { 
-          transaction: tx
+          transaction: tx as any
         },
         {
           onSuccess: (result) => {

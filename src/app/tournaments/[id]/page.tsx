@@ -186,13 +186,13 @@ export default function TournamentDetails() {
         matchNumber: matchId,
         nft1: shuffled[i] ? {
           id: shuffled[i].nftId,
-          name: shuffled[i].name,
+          name: shuffled[i].name || 'Unknown NFT',
           imageUrl: shuffled[i].imageUrl,
           votes: 0
         } : undefined,
         nft2: shuffled[i + 1] ? {
           id: shuffled[i + 1].nftId,
-          name: shuffled[i + 1].name,
+          name: shuffled[i + 1].name || 'Unknown NFT',
           imageUrl: shuffled[i + 1].imageUrl,
           votes: 0
         } : undefined,
