@@ -42,7 +42,7 @@ export function NetworkStatus({ className, showLabel = true, compact = false }: 
   };
 
   const currentNetwork = networkConfig[networkName] || networkConfig.unknown;
-  const expectedNetwork = process.env.NEXT_PUBLIC_NETWORK || 'testnet';
+  const expectedNetwork = process.env.NEXT_PUBLIC_NETWORK || 'mainnet';
   const isCorrectNetwork = networkName === expectedNetwork;
   
   if (!account) {

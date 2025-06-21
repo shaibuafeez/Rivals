@@ -179,7 +179,7 @@ export default function TournamentDetailPage() {
       
       
       // Create SuiClient
-      const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL || getFullnodeUrl('testnet') });
+      const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL || getFullnodeUrl('mainnet') });
       const tournamentService = new TournamentService(suiClient);
       
       // Try to fetch real entries from blockchain
@@ -296,7 +296,7 @@ export default function TournamentDetailPage() {
       console.log('Fetching tournament with ID:', tournamentId);
       
       // Create SuiClient
-      const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL || getFullnodeUrl('testnet') });
+      const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL || getFullnodeUrl('mainnet') });
       const tournamentService = new TournamentService(suiClient);
       
       // Fetch tournament by ID

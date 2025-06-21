@@ -26,9 +26,9 @@ const queryClient = new QueryClient({
   },
 });
 
-// Get network from environment or default to testnet
+// Get network from environment or default to mainnet
 const getDefaultNetwork = () => {
-  const network = process.env.NEXT_PUBLIC_NETWORK || 'testnet';
+  const network = process.env.NEXT_PUBLIC_NETWORK || 'mainnet';
   return network as 'devnet' | 'mainnet' | 'testnet';
 };
 
@@ -36,7 +36,7 @@ const getDefaultNetwork = () => {
 const { networkConfig } = createNetworkConfig({
   devnet: { url: getFullnodeUrl('devnet') },
   mainnet: { url: process.env.NEXT_PUBLIC_SUI_RPC_URL || getFullnodeUrl('mainnet') },
-  testnet: { url: process.env.NEXT_PUBLIC_SUI_RPC_URL || getFullnodeUrl('testnet') },
+  testnet: { url: getFullnodeUrl('testnet') },
 });
 
 export default function AppWalletProvider({ children }: Props) {

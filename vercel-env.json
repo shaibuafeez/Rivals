@@ -1,0 +1,56 @@
+[
+  {
+    "key": "NEXT_PUBLIC_TOURNAMENT_PACKAGE_ID",
+    "value": "0x203bbd21feeaa6ea6ea756e83548de6a54ed6ac6c29e5dbbfdfe026d5b44858d",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_SIMPLE_TOURNAMENT_PACKAGE_ID",
+    "value": "0xca6e7b1b3e523a551e46fb90e4bf6690b91455919a909e9aa5e8b7619408c5ce",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_TOURNAMENT_REGISTRY_ID",
+    "value": "0x60e804c13a74dd28d23892dd6907bd05cb34f468ad885c20a3035a3ecddc17de",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_WALRUS_PACKAGE_ID",
+    "value": "0xcf2bb814dc0f6cc4f63955619a81c361eb1813e5f3097d4c92d5ed03a2d23912",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_SUI_RPC_URL",
+    "value": "https://fullnode.mainnet.sui.io",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_NETWORK",
+    "value": "mainnet",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_SUI_NETWORK",
+    "value": "mainnet",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_USE_MOCK_DATA",
+    "value": "false",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_BLOCKVISION_API_KEY",
+    "value": "2vmcIQeMF5JdhEXyuyQ8n79UNoO",
+    "type": "plain",
+    "target": ["production", "preview", "development"]
+  }
+]

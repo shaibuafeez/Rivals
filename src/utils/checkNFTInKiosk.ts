@@ -28,7 +28,7 @@ export async function checkSpecificNFTInWallet(
   
   // Create SUI client if not provided
   const client = suiClient || new SuiClient({ 
-    url: process.env.NEXT_PUBLIC_SUI_RPC_URL || 'https://fullnode.testnet.sui.io:443' 
+    url: process.env.NEXT_PUBLIC_SUI_RPC_URL || 'https://fullnode.mainnet.sui.io:443' 
   });
 
   try {

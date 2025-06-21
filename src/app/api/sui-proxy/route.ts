@@ -9,9 +9,9 @@ const requestTracker = {
 
 // RPC endpoints to try in order
 const RPC_ENDPOINTS = [
-  'https://fullnode.testnet.sui.io:443',
-  'https://sui-testnet.nodeinfra.com',
-  'https://sui-testnet-rpc.allthatnode.com',
+  'https://fullnode.mainnet.sui.io:443',
+  'https://sui-mainnet.nodeinfra.com',
+  'https://sui-mainnet-rpc.allthatnode.com',
 ];
 
 // Exponential backoff retry function
