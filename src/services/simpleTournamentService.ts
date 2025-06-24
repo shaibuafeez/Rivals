@@ -160,6 +160,23 @@ export class SimpleTournamentService {
 
       const fields = obj.data.content.fields as any;
       
+      // Debug prize pool structure
+      console.log('Prize pool object:', fields.prize_pool);
+      
+      // The prize pool might be stored directly as a number or in a Balance object
+      let prizePoolValue = 0;
+      if (fields.prize_pool) {
+        if (typeof fields.prize_pool === 'string' || typeof fields.prize_pool === 'number') {
+          prizePoolValue = parseInt(fields.prize_pool.toString());
+        } else if (fields.prize_pool.fields?.value) {
+          prizePoolValue = parseInt(fields.prize_pool.fields.value);
+        } else if (fields.prize_pool.value) {
+          prizePoolValue = parseInt(fields.prize_pool.value);
+        }
+      }
+      
+      console.log('Parsed prize pool value:', prizePoolValue);
+      
       return {
         id: tournamentId,
         name: fields.name,
@@ -167,7 +184,7 @@ export class SimpleTournamentService {
         bannerUrl: fields.banner_url,
         endTime: parseInt(fields.end_time),
         ended: fields.ended,
-        prizePool: parseInt(fields.prize_pool?.fields?.value || '0'),
+        prizePool: prizePoolValue,
         entriesCount: fields.entries?.length || 0,
       };
     } catch (error) {
@@ -183,19 +200,32 @@ export class SimpleTournamentService {
     try {
       const obj = await this.suiClient.getObject({
         id: tournamentId,
-        options: { showContent: true },
+        options: { 
+          showContent: true,
+          showType: true 
+        },
       });
 
+      console.log('Full tournament object:', JSON.stringify(obj, null, 2));
+
       if (!obj.data?.content || obj.data.content.dataType !== 'moveObject') {
+        console.error('Invalid object data type:', obj.data?.content);
         return [];
       }
 
       const fields = obj.data.content.fields as any;
       const entries = fields.entries || [];
       
-      return entries.map((entry: any) => {
+      console.log('Tournament fields:', fields);
+      console.log('Raw entries:', entries);
+      
+      return entries.map((entry: any, index: number) => {
         // The actual data is in the fields object
         const entryFields = entry.fields || entry;
+        
+        console.log(`Entry ${index} raw data:`, entry);
+        console.log(`Entry ${index} fields:`, entryFields);
+        console.log(`Entry ${index} vote_count:`, entryFields.vote_count);
         
         return {
           nftId: entryFields.nft_id,

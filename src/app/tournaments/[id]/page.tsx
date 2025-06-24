@@ -12,7 +12,7 @@ import { SuiClient } from '@mysten/sui/client';
 import { NFTEntry, Tournament } from '@/services/tournamentService';
 import NFTSelectionModal from '@/components/ui/NFTSelectionModal';
 import ShareTournamentEntry from '@/components/ui/ShareTournamentEntry';
-import AnimatedSmashOrPassVoting from '@/components/voting/AnimatedSmashOrPassVoting';
+import NFTVotingGallery from '@/components/voting/NFTVotingGallery';
 import NFTLeaderboard from '@/components/tournament/NFTLeaderboard';
 import TournamentNFTGallery from '@/components/tournament/TournamentNFTGallery';
 import TournamentEntryModal from '@/components/tournaments/TournamentEntryModal';
@@ -21,9 +21,7 @@ import { castToSuiClient } from '@/types/sui-client';
 import Navbar from '@/components/layout/Navbar';
 import VoteSuccessAnimation from '@/components/ui/VoteSuccessAnimation';
 import confetti from 'canvas-confetti';
-import TournamentBracket, { BracketMatch } from '@/components/tournament/TournamentBracket';
-import BattleArena from '@/components/tournament/BattleArena';
-import MatchSchedule from '@/components/tournament/MatchSchedule';
+import { type TournamentEntry, convertSimpleEntry } from '@/types/tournament';
 
 // Animation variants
 const fadeInUp = {
@@ -136,6 +134,13 @@ export default function TournamentDetails() {
   const [totalRounds, setTotalRounds] = useState(0);
   const [viewMode, setViewMode] = useState<'bracket' | 'battle'>('battle');
   const [lastVoteTime, setLastVoteTime] = useState<number | null>(null);
+  const [votingForNFT, setVotingForNFT] = useState<string | null>(null);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [votedNftId, setVotedNftId] = useState<string | undefined>(undefined);
+  
+  // Get wallet info early
+  const { isConnected, address, executeTransaction } = useWallet();
+  const suiClient = useSuiClient();
   
   // Add logging for modal state changes
   useEffect(() => {
@@ -228,9 +233,6 @@ export default function TournamentDetails() {
       setTotalRounds(0);
     }
   }, [nftEntries, tournament?.status]);
-  
-  const { isConnected } = useWallet();
-  const suiClient = useSuiClient();
 
   // Generate tournament brackets from entries
   const generateBrackets = (entries: NFTEntry[]) => {
@@ -399,6 +401,23 @@ export default function TournamentDetails() {
             setHasEntered(localStorageHasEntry);
             setEntryId(localEntryId);
             
+            // Check if user has voted (if wallet is connected)
+            if (address && service) {
+              try {
+                const userHasVoted = await service.hasUserVoted(tournamentId, address);
+                setHasVoted(userHasVoted);
+                
+                // Try to find which NFT they voted for from localStorage
+                const votedNftKey = `voted_${tournamentId}_${address}`;
+                const storedVotedNft = localStorage.getItem(votedNftKey);
+                if (storedVotedNft) {
+                  setVotedNftId(storedVotedNft);
+                }
+              } catch (error) {
+                console.error('Error checking vote status:', error);
+              }
+            }
+            
           } catch (error) {
             console.error('Error checking entry status:', error);
             setHasEntered(false);
@@ -417,6 +436,34 @@ export default function TournamentDetails() {
       fetchTournamentData();
     }
   }, [tournamentId]);
+
+  // Check voting status when wallet connects
+  useEffect(() => {
+    const checkVotingStatus = async () => {
+      if (!address || !tournamentId) return;
+      
+      try {
+        const { SimpleTournamentService } = await import('@/services/simpleTournamentService');
+        const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL! });
+        const PACKAGE_ID = process.env.NEXT_PUBLIC_SIMPLE_TOURNAMENT_PACKAGE_ID!;
+        const service = new SimpleTournamentService(suiClient, PACKAGE_ID);
+        
+        const userHasVoted = await service.hasUserVoted(tournamentId, address);
+        setHasVoted(userHasVoted);
+        
+        // Try to find which NFT they voted for from localStorage
+        const votedNftKey = `voted_${tournamentId}_${address}`;
+        const storedVotedNft = localStorage.getItem(votedNftKey);
+        if (storedVotedNft) {
+          setVotedNftId(storedVotedNft);
+        }
+      } catch (error) {
+        console.error('Error checking vote status:', error);
+      }
+    };
+    
+    checkVotingStatus();
+  }, [address, tournamentId]);
 
   const handleEnterTournament = () => {
     if (!isConnected) {
@@ -542,9 +589,7 @@ export default function TournamentDetails() {
     setTimeout(refreshWithRetry, 2000);
   };
 
-  // Add voting state
-  const [votingForNFT, setVotingForNFT] = useState<string | null>(null);
-  const { address, executeTransaction } = useWallet();
+  // Voting state is already declared above
 
   // Handle voting for NFTs using SimpleTournamentService
   const handleVote = async (nftId: string) => {
@@ -568,10 +613,12 @@ export default function TournamentDetails() {
       const service = new SimpleTournamentService(suiClient, PACKAGE_ID);
       
       console.log('🗳️ Voting for NFT:', nftId, 'in tournament:', tournament.id);
+      console.log('Tournament ID type:', typeof tournament.id);
+      console.log('NFT ID type:', typeof nftId);
       
       // Check if user has already voted
-      const hasVoted = await service.hasUserVoted(tournament.id, address);
-      if (hasVoted) {
+      const userHasVoted = await service.hasUserVoted(tournament.id, address);
+      if (userHasVoted) {
         console.log('⚠️ User has already voted in this tournament');
         toast.error('You have already voted in this tournament!');
         setVotingForNFT(null);
@@ -590,6 +637,14 @@ export default function TournamentDetails() {
         
         // Mark the vote time to prevent immediate refresh
         setLastVoteTime(Date.now());
+        
+        // Update voting state
+        setHasVoted(true);
+        setVotedNftId(nftId);
+        
+        // Store voted NFT in localStorage
+        const votedNftKey = `voted_${tournament.id}_${address}`;
+        localStorage.setItem(votedNftKey, nftId);
         
         // Show success animation
         setShowVoteSuccess(true);
@@ -923,116 +978,64 @@ export default function TournamentDetails() {
             transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
             <div id="voting" className="bg-black border border-gray-800 p-8 transition-all duration-300 hover:border-gray-700">
-              {/* Voting Header */}
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Battle Arena</h2>
-                  <p className="text-gray-400 text-sm mt-1 normal-case">
-                    {viewMode === 'bracket' ? 'Tournament bracket overview' : 'Vote in head-to-head battles'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  {tournament.status === 1 && (
-                    <motion.div 
-                      className="flex items-center gap-2"
-                      animate={{ opacity: [1, 0.5, 1] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      <div className="tournament-type-indicator tournament-status-active" style={{backgroundColor: 'var(--status-active)', color: 'var(--status-active)'}}></div>
-                      <span className="text-sm font-medium uppercase tracking-wider" style={{color: 'var(--status-active)'}}>
-                        Round {currentRound} Live
-                      </span>
-                    </motion.div>
-                  )}
-                  
-                  {/* View Mode Toggle */}
-                  <div className="flex bg-gray-900 border border-gray-800 p-1">
-                    <button
-                      onClick={() => setViewMode('battle')}
-                      className={`px-4 py-2 text-sm font-medium transition-all ${
-                        viewMode === 'battle'
-                          ? 'bg-white text-black'
-                          : 'text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      Battle
-                    </button>
-                    <button
-                      onClick={() => setViewMode('bracket')}
-                      className={`px-4 py-2 text-sm font-medium transition-all ${
-                        viewMode === 'bracket'
-                          ? 'bg-white text-black'
-                          : 'text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      Bracket
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Voting Content */}
-              <div className="bg-gray-900/50 border border-gray-800 p-6 backdrop-blur-sm">
-                {tournament.status === 1 ? (
-                  nftEntries.length < 2 ? (
-                    <div className="text-center py-16">
-                      <div className="text-4xl mb-4">⏳</div>
-                      <h3 className="text-xl font-bold text-white mb-2 uppercase">Waiting for More Participants</h3>
-                      <p className="text-gray-400">Need at least 2 participants to start battles.</p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Current participants: {nftEntries.length}
-                      </p>
-                    </div>
-                  ) : viewMode === 'bracket' ? (
-                    <TournamentBracket
-                      matches={bracketMatches}
-                      currentRound={currentRound}
-                      totalRounds={totalRounds}
-                      onMatchClick={(match) => {
-                        if (match.status === 'active') {
-                          setCurrentMatch(match);
-                          setViewMode('battle');
-                        }
-                      }}
-                    />
-                  ) : (
-                    <BattleArena
-                      currentMatch={currentMatch}
-                      onVote={async (matchId, nftId) => {
-                        // Submit vote on blockchain
-                        await handleVote(nftId);
-                      }}
-                      userVoted={false}
-                      timeRemaining={timeRemaining}
-                      votingInProgress={votingForNFT !== null}
-                    />
-                  )
-                ) : tournament.status === 2 ? (
-                  <div className="text-center py-16">
-                    <div className="text-4xl mb-4">🏁</div>
-                    <h3 className="text-xl font-bold text-white mb-2 uppercase">Tournament Ended</h3>
-                    <p className="text-gray-400">The champion has been crowned!</p>
-                    {/* Show final bracket */}
-                    {bracketMatches.length > 0 && (
-                      <button
-                        onClick={() => setViewMode('bracket')}
-                        className="mt-4 px-6 py-3 bg-white text-black font-bold uppercase hover:bg-gray-200 transition-all"
-                      >
-                        View Final Bracket
-                      </button>
-                    )}
-                  </div>
-                ) : (
+              {/* NFT Voting Gallery */}
+              {tournament.status === 1 ? (
+                nftEntries.length < 2 ? (
                   <div className="text-center py-16">
                     <div className="text-4xl mb-4">⏳</div>
-                    <h3 className="text-xl font-bold text-white mb-2 uppercase">Registration Phase</h3>
-                    <p className="text-gray-400">Waiting for enough participants to start the tournament.</p>
+                    <h3 className="text-xl font-bold text-white mb-2 uppercase">Waiting for More Participants</h3>
+                    <p className="text-gray-400">Need at least 2 participants to start voting.</p>
                     <p className="text-sm text-gray-500 mt-2">
-                      {nftEntries.length} / 8 minimum participants
+                      Current participants: {nftEntries.length}
                     </p>
                   </div>
-                )}
-              </div>
+                ) : (
+                  <NFTVotingGallery
+                    entries={nftEntries.map(entry => ({
+                      nft_id: entry.nftId,
+                      submitter: entry.owner,
+                      image_url: entry.imageUrl,
+                      vote_count: entry.votes
+                    }))}
+                    onVote={handleVote}
+                    hasVoted={hasVoted}
+                    votedNftId={votedNftId}
+                    tournamentId={tournamentId}
+                    isVoting={votingForNFT !== null}
+                  />
+                )
+              ) : tournament.status === 2 ? (
+                <div className="space-y-6">
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-4">🏁</div>
+                    <h3 className="text-xl font-bold text-white mb-2 uppercase">Tournament Ended</h3>
+                    <p className="text-gray-400">The voting has concluded!</p>
+                  </div>
+                  {/* Show final results */}
+                  <NFTVotingGallery
+                    entries={nftEntries.map(entry => ({
+                      nft_id: entry.nftId,
+                      submitter: entry.owner,
+                      image_url: entry.imageUrl,
+                      vote_count: entry.votes
+                    }))}
+                    onVote={handleVote}
+                    hasVoted={true}
+                    votedNftId={votedNftId}
+                    tournamentId={tournamentId}
+                    isVoting={false}
+                  />
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <div className="text-4xl mb-4">⏳</div>
+                  <h3 className="text-xl font-bold text-white mb-2 uppercase">Registration Phase</h3>
+                  <p className="text-gray-400">Waiting for enough participants to start the tournament.</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    {nftEntries.length} / 5 minimum participants
+                  </p>
+                </div>
+              )}
             </div>
           </motion.div>
 
@@ -1124,21 +1127,42 @@ export default function TournamentDetails() {
 
             {/* Match Schedule */}
             <div id="match-schedule" className="space-y-6">
+              {/* Voting Stats */}
               <div className="bg-black border border-gray-800 p-6 transition-all duration-300 hover:border-gray-700">
                 <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wider">
-                  Match Schedule
+                  Voting Progress
                 </h3>
                 
-                <MatchSchedule
-                  matches={bracketMatches}
-                  currentRound={currentRound}
-                  onMatchSelect={(match) => {
-                    if (match.status === 'active') {
-                      setCurrentMatch(match);
-                      setViewMode('battle');
-                    }
-                  }}
-                />
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Total Votes Cast</span>
+                    <span className="text-xl font-bold text-white">
+                      {nftEntries.reduce((sum, entry) => sum + entry.votes, 0)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Participants</span>
+                    <span className="text-xl font-bold text-white">{nftEntries.length}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Your Status</span>
+                    <span className={`text-sm font-bold uppercase ${
+                      hasVoted ? 'text-green-500' : 'text-yellow-500'
+                    }`}>
+                      {hasVoted ? 'Voted ✓' : 'Not Voted'}
+                    </span>
+                  </div>
+                  
+                  {tournament.status === 1 && (
+                    <div className="pt-4 border-t border-gray-800">
+                      <p className="text-xs text-gray-500 text-center">
+                        One vote per wallet • Votes are final
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
               
               {/* Tournament Stats */}
@@ -1153,21 +1177,27 @@ export default function TournamentDetails() {
                     <span className="text-white font-bold">{nftEntries.length}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400 text-sm uppercase">Current Round</span>
-                    <span className="text-white font-bold">{currentRound} / {totalRounds}</span>
+                    <span className="text-gray-400 text-sm uppercase">Leading NFT</span>
+                    <span className="text-white font-bold">
+                      {nftEntries.length > 0 
+                        ? nftEntries.sort((a, b) => b.votes - a.votes)[0].votes + ' votes'
+                        : 'None'
+                      }
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-400 text-sm uppercase">Matches Played</span>
+                    <span className="text-gray-400 text-sm uppercase">Avg Votes per NFT</span>
                     <span className="text-white font-bold">
-                      {bracketMatches.filter(m => m.status === 'completed').length}
+                      {nftEntries.length > 0 
+                        ? (nftEntries.reduce((sum, entry) => sum + entry.votes, 0) / nftEntries.length).toFixed(1)
+                        : '0'
+                      }
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400 text-sm uppercase">Total Votes</span>
                     <span className="text-white font-bold">
-                      {bracketMatches.reduce((sum, match) => 
-                        sum + (match.nft1?.votes || 0) + (match.nft2?.votes || 0), 0
-                      )}
+                      {nftEntries.reduce((sum, entry) => sum + entry.votes, 0)}
                     </span>
                   </div>
                 </div>
