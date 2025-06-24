@@ -101,11 +101,6 @@ export default function TournamentDetails() {
             tournamentId: tournamentId
           }));
           setNftEntries(mappedEntries);
-          
-          // Generate brackets if we have enough entries
-          if (mappedEntries.length >= 2) {
-            generateBrackets(mappedEntries);
-          }
         }
       } catch (error) {
         // Error handled with toast notification
@@ -128,11 +123,7 @@ export default function TournamentDetails() {
   const [timeRemaining, setTimeRemaining] = useState('');
   const [showVoteSuccess, setShowVoteSuccess] = useState(false);
   const [votedNftName, setVotedNftName] = useState('');
-  const [bracketMatches, setBracketMatches] = useState<BracketMatch[]>([]);
-  const [currentMatch, setCurrentMatch] = useState<BracketMatch | null>(null);
-  const [currentRound, setCurrentRound] = useState(1);
-  const [totalRounds, setTotalRounds] = useState(0);
-  const [viewMode, setViewMode] = useState<'bracket' | 'battle'>('battle');
+  // Removed bracket-related state since we're using voting gallery now
   const [lastVoteTime, setLastVoteTime] = useState<number | null>(null);
   const [votingForNFT, setVotingForNFT] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
@@ -155,7 +146,7 @@ export default function TournamentDetails() {
   
   // Add periodic refresh for vote counts during active tournaments
   useEffect(() => {
-    if (!tournament || tournament.status !== 1 || !bracketMatches.length) return;
+    if (!tournament || tournament.status !== 1) return;
     
     const refreshInterval = setInterval(async () => {
       try {
@@ -188,30 +179,6 @@ export default function TournamentDetails() {
         if (hasChanges) {
           console.log('✅ Vote counts changed, updating UI');
           setNftEntries(updatedEntries);
-          
-          // Update bracket matches with real vote counts
-          setBracketMatches(prev => prev.map(match => {
-            const nft1Entry = updatedEntries.find(e => e.nftId === match.nft1?.id);
-            const nft2Entry = updatedEntries.find(e => e.nftId === match.nft2?.id);
-            
-            return {
-              ...match,
-              nft1: match.nft1 && nft1Entry ? { ...match.nft1, votes: nft1Entry.votes } : match.nft1,
-              nft2: match.nft2 && nft2Entry ? { ...match.nft2, votes: nft2Entry.votes } : match.nft2
-            };
-          }));
-          
-          // Update current match if needed
-          setCurrentMatch(prev => {
-            if (!prev) return prev;
-            const nft1Entry = updatedEntries.find(e => e.nftId === prev.nft1?.id);
-            const nft2Entry = updatedEntries.find(e => e.nftId === prev.nft2?.id);
-            return {
-              ...prev,
-              nft1: prev.nft1 && nft1Entry ? { ...prev.nft1, votes: nft1Entry.votes } : prev.nft1,
-              nft2: prev.nft2 && nft2Entry ? { ...prev.nft2, votes: nft2Entry.votes } : prev.nft2
-            };
-          });
         }
       } catch (error) {
         console.error('Error in periodic refresh:', error);
@@ -219,86 +186,12 @@ export default function TournamentDetails() {
     }, 15000); // Refresh every 15 seconds
     
     return () => clearInterval(refreshInterval);
-  }, [tournament?.status, tournamentId, lastVoteTime, nftEntries.length, bracketMatches.length]);
+  }, [tournament?.status, tournamentId, lastVoteTime, nftEntries.length]);
   
-  // Generate brackets when entries change
-  useEffect(() => {
-    if (nftEntries.length >= 2 && tournament?.status === 1) {
-      console.log('Generating brackets for', nftEntries.length, 'entries');
-      generateBrackets(nftEntries);
-    } else if (tournament?.status === 1) {
-      // Clear brackets if not enough entries
-      setBracketMatches([]);
-      setCurrentMatch(null);
-      setTotalRounds(0);
-    }
-  }, [nftEntries, tournament?.status]);
+  // Removed bracket generation - using voting gallery instead
 
   // Generate tournament brackets from entries
-  const generateBrackets = (entries: NFTEntry[]) => {
-    if (entries.length < 2) return [];
-    
-    // Calculate number of rounds needed
-    const rounds = Math.ceil(Math.log2(entries.length));
-    setTotalRounds(rounds);
-    
-    // Shuffle entries for random matchups
-    const shuffled = [...entries].sort(() => Math.random() - 0.5);
-    
-    // Generate first round matches
-    const matches: BracketMatch[] = [];
-    let matchId = 1;
-    
-    // Create first round matches
-    for (let i = 0; i < shuffled.length; i += 2) {
-      const match: BracketMatch = {
-        id: `match-${matchId}`,
-        round: 1,
-        matchNumber: matchId,
-        nft1: shuffled[i] ? {
-          id: shuffled[i].nftId,
-          name: shuffled[i].name || 'Unknown NFT',
-          imageUrl: shuffled[i].imageUrl,
-          votes: 0
-        } : undefined,
-        nft2: shuffled[i + 1] ? {
-          id: shuffled[i + 1].nftId,
-          name: shuffled[i + 1].name || 'Unknown NFT',
-          imageUrl: shuffled[i + 1].imageUrl,
-          votes: 0
-        } : undefined,
-        status: matchId === 1 ? 'active' : 'upcoming',
-        startTime: Date.now(),
-        endTime: Date.now() + (2 * 60 * 60 * 1000) // 2 hours per round
-      };
-      matches.push(match);
-      matchId++;
-    }
-    
-    // Generate placeholder matches for subsequent rounds
-    for (let round = 2; round <= rounds; round++) {
-      const matchesInRound = Math.ceil(matches.filter(m => m.round === round - 1).length / 2);
-      for (let i = 0; i < matchesInRound; i++) {
-        matches.push({
-          id: `match-${matchId}`,
-          round,
-          matchNumber: matchId,
-          status: 'upcoming',
-          startTime: Date.now() + ((round - 1) * 2 * 60 * 60 * 1000),
-          endTime: Date.now() + (round * 2 * 60 * 60 * 1000)
-        });
-        matchId++;
-      }
-    }
-    
-    setBracketMatches(matches);
-    
-    // Set first match as current
-    const firstMatch = matches.find(m => m.status === 'active');
-    setCurrentMatch(firstMatch || null);
-    
-    return matches;
-  };
+  // Removed generateBrackets function - using voting gallery instead
 
   // Real-time countdown timer
   useEffect(() => {
@@ -598,8 +491,8 @@ export default function TournamentDetails() {
       return;
     }
 
-    if (!tournament || !currentMatch) {
-      toast.error('Tournament or match not found');
+    if (!tournament) {
+      toast.error('Tournament not found');
       return;
     }
 
@@ -648,38 +541,20 @@ export default function TournamentDetails() {
         
         // Show success animation
         setShowVoteSuccess(true);
-        setVotedNftName(currentMatch?.nft1?.id === nftId ? currentMatch.nft1.name : currentMatch?.nft2?.name || '');
+        const votedEntry = nftEntries.find(e => e.nftId === nftId);
+        setVotedNftName(votedEntry?.name || 'NFT');
         setTimeout(() => setShowVoteSuccess(false), 3000);
         
-        // Update match votes locally for immediate feedback
-        setBracketMatches(prev => prev.map(match => {
-          if (match.id === currentMatch.id) {
+        // Update votes locally for immediate feedback
+        setNftEntries(prev => prev.map(entry => {
+          if (entry.nftId === nftId) {
             return {
-              ...match,
-              nft1: match.nft1?.id === nftId 
-                ? { ...match.nft1, votes: (match.nft1.votes || 0) + 1 }
-                : match.nft1,
-              nft2: match.nft2?.id === nftId 
-                ? { ...match.nft2, votes: (match.nft2.votes || 0) + 1 }
-                : match.nft2
+              ...entry,
+              votes: entry.votes + 1
             };
           }
-          return match;
+          return entry;
         }));
-        
-        // Update current match state
-        setCurrentMatch(prev => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            nft1: prev.nft1?.id === nftId 
-              ? { ...prev.nft1, votes: (prev.nft1.votes || 0) + 1 }
-              : prev.nft1,
-            nft2: prev.nft2?.id === nftId 
-              ? { ...prev.nft2, votes: (prev.nft2.votes || 0) + 1 }
-              : prev.nft2
-          };
-        });
         
         // Refresh tournament entries after voting with retry logic
         const refreshVoteCounts = async (retryCount = 0) => {
@@ -716,30 +591,6 @@ export default function TournamentDetails() {
               
               console.log('✅ Vote counts updated successfully');
               setNftEntries(updatedEntries);
-              
-              // Update bracket matches with real vote counts
-              setBracketMatches(prev => prev.map(match => {
-                const nft1Entry = updatedEntries.find(e => e.nftId === match.nft1?.id);
-                const nft2Entry = updatedEntries.find(e => e.nftId === match.nft2?.id);
-                
-                return {
-                  ...match,
-                  nft1: match.nft1 && nft1Entry ? { ...match.nft1, votes: nft1Entry.votes } : match.nft1,
-                  nft2: match.nft2 && nft2Entry ? { ...match.nft2, votes: nft2Entry.votes } : match.nft2
-                };
-              }));
-              
-              // Update current match state
-              setCurrentMatch(prev => {
-                if (!prev) return prev;
-                const nft1Entry = updatedEntries.find(e => e.nftId === prev.nft1?.id);
-                const nft2Entry = updatedEntries.find(e => e.nftId === prev.nft2?.id);
-                return {
-                  ...prev,
-                  nft1: prev.nft1 && nft1Entry ? { ...prev.nft1, votes: nft1Entry.votes } : prev.nft1,
-                  nft2: prev.nft2 && nft2Entry ? { ...prev.nft2, votes: nft2Entry.votes } : prev.nft2
-                };
-              });
             } catch (error) {
               console.error('Error refreshing entries after vote:', error);
               if (retryCount < maxRetries - 1) {
