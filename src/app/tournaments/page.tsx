@@ -95,11 +95,6 @@ export default function TournamentsPage() {
                       <p className="text-xl text-gray-400 mb-8 max-w-xl normal-case">
                         Enter the battlefield where NFTs compete for glory and prizes. Vote for your favorites and claim victory.
                       </p>
-                      
-                      {/* CTA Button */}
-                      <button className="px-8 py-4 bg-white text-black font-bold text-lg hover:bg-gray-200 transition-colors rounded-full">
-                        ENTER TOURNAMENT →
-                      </button>
                     </div>
 
                     {/* Right Stats */}
