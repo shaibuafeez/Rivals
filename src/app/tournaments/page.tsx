@@ -87,7 +87,7 @@ export default function TournamentsPage() {
                 <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-gray-800"></div>
               </div>
 
-              <div className="relative z-10 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-16 sm:py-24 lg:py-32">
+              <div className="relative z-10 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-32">
                 <div className="max-w-6xl mx-auto">
                   <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
                     {/* Left Content */}
