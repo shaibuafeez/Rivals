@@ -166,7 +166,7 @@ export default function TournamentsPage() {
                     {isConnected && (
                       <motion.button
                         onClick={() => setShowCreateModal(true)}
-                        className="px-6 py-3 bg-white text-black font-bold flex items-center gap-2 hover:bg-gray-200 transition-all rounded-full"
+                        className="hidden md:flex px-6 py-3 bg-white text-black font-bold items-center gap-2 hover:bg-gray-200 transition-all rounded-full"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
