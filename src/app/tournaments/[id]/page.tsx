@@ -796,7 +796,7 @@ export default function TournamentDetails() {
   return (
     <div className="min-h-screen" style={{backgroundColor: 'var(--bg-dark)'}}>
       <Navbar />
-      <div className="px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-24">
+      <div className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-20 sm:pt-24">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Link 
@@ -819,8 +819,8 @@ export default function TournamentDetails() {
         </div>
 
         {/* Tournament Hero */}
-        <div className="relative bg-black border border-gray-800 overflow-hidden mb-12 hero-geometric group">
-          <div className="relative h-[400px]">
+        <div className="relative bg-black border border-gray-800 overflow-hidden mb-6 sm:mb-8 md:mb-12 hero-geometric group">
+          <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
             {/* Glow Effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 opacity-0 group-hover:opacity-40 blur-3xl transition-all duration-700 scale-110 -z-10"></div>
             
@@ -842,31 +842,31 @@ export default function TournamentDetails() {
             {/* Geometric Accents - Handled by CSS now */}
             
             {/* Content */}
-            <div className="absolute bottom-0 left-0 right-0 p-12">
-              <h1 className="text-5xl font-bold text-white mb-4 uppercase tracking-tight">{tournament.name}</h1>
-              <p className="text-xl text-gray-300 mb-8 max-w-3xl normal-case">{tournament.description}</p>
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 lg:p-12">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-2 sm:mb-3 md:mb-4 uppercase tracking-tight leading-tight">{tournament.name}</h1>
+              <p className="text-xs sm:text-sm md:text-base lg:text-xl text-gray-300 mb-3 sm:mb-4 md:mb-6 lg:mb-8 max-w-3xl normal-case line-clamp-2 sm:line-clamp-none">{tournament.description}</p>
               
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="stat-card border border-gray-800 bg-black/50 backdrop-blur-sm p-4 hover-lift transition-all duration-300">
-                  <div className="text-3xl font-bold mb-1 font-mono" style={{color: 'var(--accent-gold)'}}>
+              {/* Stats Grid - Improved mobile layout */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+                <div className="stat-card border border-gray-800 bg-black/70 backdrop-blur-sm p-4 sm:p-5 hover-lift transition-all duration-300">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 font-mono" style={{color: 'var(--accent-gold)'}}>
                     {((parseInt(tournament.prizePool || '0')) / 1_000_000_000).toFixed(2)}
                   </div>
-                  <div className="text-xs text-gray-400 uppercase tracking-wider">SUI Prize Pool</div>
+                  <div className="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider">SUI Prize Pool</div>
                 </div>
                 
-                <div className="stat-card border border-gray-800 bg-black/50 backdrop-blur-sm p-4 hover-lift transition-all duration-300">
-                  <div className="text-3xl font-bold text-white mb-1 font-mono">
+                <div className="stat-card border border-gray-800 bg-black/70 backdrop-blur-sm p-4 sm:p-5 hover-lift transition-all duration-300">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 font-mono">
                     {tournament.totalParticipants}
                   </div>
-                  <div className="text-xs text-gray-400 uppercase tracking-wider">Participants</div>
+                  <div className="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider">Participants</div>
                 </div>
                 
-                <div className="stat-card border border-gray-800 bg-black/50 backdrop-blur-sm p-4 hover-lift transition-all duration-300">
-                  <div className="text-3xl font-bold text-white mb-1 font-mono">
+                <div className="stat-card border border-gray-800 bg-black/70 backdrop-blur-sm p-4 sm:p-5 hover-lift transition-all duration-300">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 font-mono">
                     {((parseInt(tournament.entryFee || '0')) / 1_000_000_000).toFixed(3)}
                   </div>
-                  <div className="text-xs text-gray-400 uppercase tracking-wider">Entry Fee (SUI)</div>
+                  <div className="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider">Entry Fee (SUI)</div>
                 </div>
                 
                 <motion.div 
@@ -874,8 +874,8 @@ export default function TournamentDetails() {
                     hidden: { opacity: 0, y: 20 },
                     visible: { opacity: 1, y: 0 }
                   }}
-                  className="stat-card border border-gray-800 bg-black/50 backdrop-blur-sm p-4 hover-lift transition-all duration-300">
-                  <div className="text-3xl font-bold mb-1 font-mono" style={{color: 'var(--accent-electric)'}}>
+                  className="stat-card border border-gray-800 bg-black/70 backdrop-blur-sm p-4 sm:p-5 hover-lift transition-all duration-300">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 font-mono" style={{color: 'var(--accent-electric)'}}>
                     <motion.span
                       key={timeRemaining}
                       initial={{ opacity: 0, y: -10 }}
@@ -885,7 +885,7 @@ export default function TournamentDetails() {
                       {timeRemaining.split(' ')[0] || '---'}
                     </motion.span>
                   </div>
-                  <div className="text-xs text-gray-400 uppercase tracking-wider">Time Left</div>
+                  <div className="text-[11px] sm:text-xs text-gray-400 uppercase tracking-wider">Time Left</div>
                 </motion.div>
               </div>
             </div>
@@ -902,7 +902,7 @@ export default function TournamentDetails() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div id="voting" className="bg-black border border-gray-800 p-8 transition-all duration-300 hover:border-gray-700">
+            <div id="voting" className="bg-black border border-gray-800 p-4 sm:p-6 md:p-8 transition-all duration-300 hover:border-gray-700">
               {/* NFT Voting Gallery */}
               {tournament.status === 1 ? (
                 nftEntries.length < 2 ? (
@@ -930,11 +930,11 @@ export default function TournamentDetails() {
                   />
                 )
               ) : tournament.status === 2 ? (
-                <div className="space-y-6">
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-4">🏁</div>
-                    <h3 className="text-xl font-bold text-white mb-2 uppercase">Tournament Ended</h3>
-                    <p className="text-gray-400">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="text-center py-6 sm:py-8">
+                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🏁</div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 uppercase">Tournament Ended</h3>
+                    <p className="text-sm sm:text-base text-gray-400 px-4 sm:px-0">
                       {isFinalized ? 'The voting has concluded and prizes have been distributed!' : 'The voting has concluded!'}
                     </p>
                     

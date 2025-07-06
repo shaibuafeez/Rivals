@@ -53,10 +53,11 @@ const ConnectWalletButton = ({ className = '' }: { className?: string }) => {
     return (
       <div className={`relative ${className}`}>
         <ConnectButton 
-          className="!bg-black !text-white !px-6 !py-3 !rounded-lg !text-sm !font-medium hover:!bg-gray-900 !transition-all !duration-200 !border !border-gray-800 hover:!border-gray-600 !shadow-md hover:!shadow-lg !flex !items-center !gap-2"
+          className="!bg-black !text-white !px-3 sm:!px-6 !py-2 sm:!py-3 !rounded-lg !text-sm !font-medium hover:!bg-gray-900 !transition-all !duration-200 !border !border-gray-800 hover:!border-gray-600 !shadow-md hover:!shadow-lg !flex !items-center !gap-1 sm:!gap-2"
         >
           <Wallet className="w-4 h-4" />
-          Connect Wallet
+          <span className="hidden sm:inline">Connect Wallet</span>
+          <span className="sm:hidden">Connect</span>
         </ConnectButton>
       </div>
     );
@@ -66,10 +67,11 @@ const ConnectWalletButton = ({ className = '' }: { className?: string }) => {
     <div className={`relative ${className}`}>
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900 transition-all duration-200 flex items-center gap-2 border border-gray-800 hover:border-gray-600"
+        className="bg-black text-white px-2 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900 transition-all duration-200 flex items-center gap-1 sm:gap-2 border border-gray-800 hover:border-gray-600"
       >
         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-        <span>{formatAddress(account.address)}</span>
+        <span className="hidden sm:inline">{formatAddress(account.address)}</span>
+        <span className="sm:hidden">{account.address.slice(0, 6)}...{account.address.slice(-4)}</span>
         <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
       </button>
 

@@ -104,22 +104,22 @@ export default function NFTVotingGallery({
   return (
     <div className="w-full space-y-6">
       {/* Header with stats and controls */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Vote for Your Favorite</h2>
-          <p className="text-gray-400 mt-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Vote for Your Favorite</h2>
+          <p className="text-xs sm:text-sm text-gray-400 mt-1">
             {totalVotes} votes cast • {deduplicatedEntries.length} NFTs competing
           </p>
         </div>
 
         {/* Sort and Filter Controls */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
           {/* Sort Dropdown */}
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-initial">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="appearance-none bg-gray-900 text-white px-4 py-2 pr-8 rounded-lg border border-gray-800 hover:border-gray-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="appearance-none bg-gray-900 text-white px-3 sm:px-4 py-2 pr-8 rounded-lg border border-gray-800 hover:border-gray-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 w-full text-sm"
             >
               <option value="votes">Most Votes</option>
               <option value="newest">Newest First</option>
@@ -133,11 +133,11 @@ export default function NFTVotingGallery({
           </div>
 
           {/* Filter Dropdown */}
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-initial">
             <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value as FilterOption)}
-              className="appearance-none bg-gray-900 text-white px-4 py-2 pr-8 rounded-lg border border-gray-800 hover:border-gray-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="appearance-none bg-gray-900 text-white px-3 sm:px-4 py-2 pr-8 rounded-lg border border-gray-800 hover:border-gray-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 w-full text-sm"
             >
               <option value="all">All NFTs</option>
               <option value="top10">Top 10</option>

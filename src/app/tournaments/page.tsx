@@ -87,37 +87,37 @@ export default function TournamentsPage() {
                 <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-gray-800"></div>
               </div>
 
-              <div className="relative z-10 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-32">
+              <div className="relative z-10 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-16 sm:py-24 lg:py-32">
                 <div className="max-w-6xl mx-auto">
-                  <div className="grid lg:grid-cols-2 gap-16 items-center">
+                  <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
                     {/* Left Content */}
                     <div>
-                      <h1 className="text-6xl sm:text-7xl font-bold mb-6 tracking-tight">
+                      <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 tracking-tight">
                         TOURNAMENT
                         <span className="block text-gray-400">ARENA</span>
                       </h1>
-                      <p className="text-xl text-gray-400 mb-8 max-w-xl normal-case">
+                      <p className="text-base sm:text-lg lg:text-xl text-gray-400 mb-6 sm:mb-8 max-w-xl normal-case">
                         Enter the battlefield where NFTs compete for glory and prizes. Vote for your favorites and claim victory.
                       </p>
                     </div>
 
                     {/* Right Stats */}
-                    <div className="grid grid-cols-2 gap-8">
-                      <div className="border border-gray-800 p-8">
-                        <div className="text-5xl font-bold mb-2">{tournaments?.length || '05'}</div>
-                        <div className="text-sm text-gray-400 uppercase tracking-wider">Active Tournaments</div>
+                    <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                      <div className="border border-gray-800 p-4 sm:p-6 lg:p-8">
+                        <div className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-1 sm:mb-2">{tournaments?.length || '4'}</div>
+                        <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wider">Active Tournaments</div>
                       </div>
-                      <div className="border border-gray-800 p-8">
-                        <div className="text-5xl font-bold mb-2">1.2K</div>
-                        <div className="text-sm text-gray-400 uppercase tracking-wider">Total Players</div>
+                      <div className="border border-gray-800 p-4 sm:p-6 lg:p-8">
+                        <div className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-1 sm:mb-2">1.2K</div>
+                        <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wider">Total Players</div>
                       </div>
-                      <div className="border border-gray-800 p-8">
-                        <div className="text-5xl font-bold mb-2">500</div>
-                        <div className="text-sm text-gray-400 uppercase tracking-wider">SUI Prize Pool</div>
+                      <div className="border border-gray-800 p-4 sm:p-6 lg:p-8">
+                        <div className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-1 sm:mb-2">500</div>
+                        <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wider">SUI Prize Pool</div>
                       </div>
-                      <div className="border border-gray-800 p-8">
-                        <div className="text-5xl font-bold mb-2">24H</div>
-                        <div className="text-sm text-gray-400 uppercase tracking-wider">Daily Battles</div>
+                      <div className="border border-gray-800 p-4 sm:p-6 lg:p-8">
+                        <div className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-1 sm:mb-2">24H</div>
+                        <div className="text-xs sm:text-sm text-gray-400 uppercase tracking-wider">Daily Battles</div>
                       </div>
                     </div>
                   </div>
@@ -213,12 +213,12 @@ export default function TournamentsPage() {
                     {filteredTournaments.slice(0, 3).map((tournament, index) => (
                       <motion.div
                         key={`featured-${tournament.id}`}
-                        className="min-w-[500px] md:min-w-[600px] lg:min-w-[700px] snap-start"
+                        className="min-w-[280px] sm:min-w-[400px] md:min-w-[600px] lg:min-w-[700px] snap-start"
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                       >
-                        <div className="relative h-[500px] bg-black border border-gray-800 overflow-hidden group hover:border-gray-600 transition-all duration-500">
+                        <div className="relative h-[300px] sm:h-[400px] md:h-[500px] bg-black border border-gray-800 overflow-hidden group hover:border-gray-600 transition-all duration-500">
                           {/* Glow Effect */}
                           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-50 blur-3xl transition-all duration-700 scale-110 -z-10"></div>
                           
@@ -239,50 +239,50 @@ export default function TournamentsPage() {
                           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
                           
                           {/* Geometric Corner Accents */}
-                          <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-white"></div>
-                          <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-white"></div>
+                          <div className="absolute top-0 left-0 w-8 h-8 sm:w-12 md:w-16 sm:h-12 md:h-16 border-l-2 border-t-2 border-white"></div>
+                          <div className="absolute bottom-0 right-0 w-8 h-8 sm:w-12 md:w-16 sm:h-12 md:h-16 border-r-2 border-b-2 border-white"></div>
                           
                           {/* Tournament Type Badge */}
-                          <div className="absolute top-6 left-6 z-10">
-                            <span className="px-4 py-2 bg-white text-black text-sm font-bold uppercase tracking-wider">
+                          <div className="absolute top-3 left-3 sm:top-4 md:top-6 sm:left-4 md:left-6 z-10">
+                            <span className="px-2 py-1 sm:px-3 md:px-4 sm:py-1.5 md:py-2 bg-white text-black text-xs sm:text-sm font-bold uppercase tracking-wider">
                               Featured
                             </span>
                           </div>
                           
                           {/* Content */}
-                          <div className="absolute bottom-0 left-0 right-0 p-10 z-10">
-                            <h3 className="text-3xl font-bold text-white mb-2 uppercase">
+                          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10 z-10">
+                            <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-white mb-1 sm:mb-2 uppercase">
                               {tournament.name}
                             </h3>
-                            <p className="text-gray-400 mb-6 line-clamp-2 normal-case">
+                            <p className="text-xs sm:text-sm md:text-base text-gray-400 mb-3 sm:mb-4 md:mb-6 line-clamp-2 normal-case">
                               {tournament.description}
                             </p>
                             
                             {/* Stats Grid */}
-                            <div className="grid grid-cols-3 gap-4 mb-6">
-                              <div className="border border-gray-800 p-3">
-                                <div className="text-2xl font-bold text-white">{tournament.totalParticipants || 0}</div>
-                                <div className="text-xs text-gray-400 uppercase">Players</div>
+                            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6">
+                              <div className="border border-gray-800 p-2 sm:p-2.5 md:p-3">
+                                <div className="text-sm sm:text-xl md:text-2xl font-bold text-white">{tournament.totalParticipants || 0}</div>
+                                <div className="text-[10px] sm:text-xs text-gray-400 uppercase">Players</div>
                               </div>
-                              <div className="border border-gray-800 p-3">
-                                <div className="text-2xl font-bold text-white">{tournament.prizePool || '50'}</div>
-                                <div className="text-xs text-gray-400 uppercase">SUI Pool</div>
+                              <div className="border border-gray-800 p-2 sm:p-2.5 md:p-3">
+                                <div className="text-sm sm:text-xl md:text-2xl font-bold text-white">{tournament.prizePool || '50'}</div>
+                                <div className="text-[10px] sm:text-xs text-gray-400 uppercase">SUI Pool</div>
                               </div>
-                              <div className="border border-gray-800 p-3">
-                                <div className="text-2xl font-bold text-white">24H</div>
-                                <div className="text-xs text-gray-400 uppercase">Remaining</div>
+                              <div className="border border-gray-800 p-2 sm:p-2.5 md:p-3">
+                                <div className="text-sm sm:text-xl md:text-2xl font-bold text-white">24H</div>
+                                <div className="text-[10px] sm:text-xs text-gray-400 uppercase">Remaining</div>
                               </div>
                             </div>
                             
                             {/* Action Button */}
                             <motion.a
                               href={`/tournaments/${tournament.id}`}
-                              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold uppercase tracking-wider hover:bg-gray-200 transition-all w-full justify-center"
+                              className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 bg-white text-black font-bold text-xs sm:text-sm md:text-base uppercase tracking-wider hover:bg-gray-200 transition-all w-full justify-center"
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                             >
                               Enter Battle
-                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                               </svg>
                             </motion.a>
