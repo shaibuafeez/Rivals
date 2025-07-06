@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import ConnectWalletButton from '../ui/ConnectWalletButton';
@@ -8,6 +8,13 @@ import { NetworkStatus } from '../ui/NetworkStatus';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark' | null>(null);
+
+  // Initialize theme state after mount to avoid hydration mismatch
+  useEffect(() => {
+    const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    setCurrentTheme(theme);
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -69,15 +76,17 @@ const Navbar = () => {
             <button
               onClick={() => {
                 const html = document.documentElement;
-                const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                 
-                if (currentTheme === 'dark') {
-                  html.classList.remove('dark');
-                  localStorage.setItem('theme', 'light');
-                } else {
+                if (newTheme === 'dark') {
                   html.classList.add('dark');
                   localStorage.setItem('theme', 'dark');
+                } else {
+                  html.classList.remove('dark');
+                  localStorage.setItem('theme', 'light');
                 }
+                
+                setCurrentTheme(newTheme);
               }}
               className="hidden sm:block p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
               aria-label="Toggle theme"
@@ -169,15 +178,17 @@ const Navbar = () => {
             <button
               onClick={() => {
                 const html = document.documentElement;
-                const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                 
-                if (currentTheme === 'dark') {
-                  html.classList.remove('dark');
-                  localStorage.setItem('theme', 'light');
-                } else {
+                if (newTheme === 'dark') {
                   html.classList.add('dark');
                   localStorage.setItem('theme', 'dark');
+                } else {
+                  html.classList.remove('dark');
+                  localStorage.setItem('theme', 'light');
                 }
+                
+                setCurrentTheme(newTheme);
                 closeMobileMenu();
               }}
               className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800/50 transition-all duration-200 group"
@@ -187,7 +198,7 @@ const Navbar = () => {
               </svg>
               Theme
               <span className="ml-auto text-sm text-gray-500">
-                {typeof window !== 'undefined' && document.documentElement.classList.contains('dark') ? 'Dark' : 'Light'}
+                {currentTheme === null ? '' : currentTheme === 'dark' ? 'Dark' : 'Light'}
               </span>
             </button>
             
