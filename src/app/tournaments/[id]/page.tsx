@@ -22,6 +22,7 @@ import Navbar from '@/components/layout/Navbar';
 import VoteSuccessAnimation from '@/components/ui/VoteSuccessAnimation';
 import confetti from 'canvas-confetti';
 import { type TournamentEntry, convertSimpleEntry } from '@/types/tournament';
+import { formatRemainingTime, shouldShowSeconds } from '@/constants/durations';
 
 // Animation variants
 const fadeInUp = {
@@ -89,6 +90,9 @@ export default function TournamentDetails() {
           };
           setTournament(adaptedTournament);
           
+          // Set finalized state based on the 'ended' field from the contract
+          setIsFinalized(tournamentData.ended);
+          
           // Load entries
           const entries = await service.getTournamentEntries(tournamentId);
           const mappedEntries = entries.map(entry => ({
@@ -128,6 +132,9 @@ export default function TournamentDetails() {
   const [votingForNFT, setVotingForNFT] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [votedNftId, setVotedNftId] = useState<string | undefined>(undefined);
+  const [isFinalized, setIsFinalized] = useState(false);
+  const [isFinalizingTournament, setIsFinalizingTournament] = useState(false);
+  const [currentTime, setCurrentTime] = useState(Date.now());
   
   // Get wallet info early
   const { isConnected, address, executeTransaction } = useWallet();
@@ -259,6 +266,9 @@ export default function TournamentDetails() {
           };
           setTournament(adaptedTournament);
           
+          // Set finalized state
+          setIsFinalized(tournamentData.ended);
+          
           // Get tournament entries
           const entries = await service.getTournamentEntries(tournamentId);
           setNftEntries(entries.map(entry => ({
@@ -357,6 +367,21 @@ export default function TournamentDetails() {
     
     checkVotingStatus();
   }, [address, tournamentId]);
+
+  // Live timer for tournament countdown
+  useEffect(() => {
+    if (!tournament) return;
+
+    // Update more frequently for tournaments with short time remaining
+    const shouldUpdate = shouldShowSeconds(tournament.endTime);
+    const interval = shouldUpdate ? 1000 : 60000; // 1 second vs 1 minute
+
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [tournament]);
 
   const handleEnterTournament = () => {
     if (!isConnected) {
@@ -619,23 +644,72 @@ export default function TournamentDetails() {
     }
   };
 
-  const formatTimeRemaining = (endTime: number) => {
-    const now = Date.now();
-    const timeRemaining = Math.max(0, Math.floor((endTime - now) / 1000));
-    
-    if (timeRemaining === 0) return 'Ended';
-    
-    const days = Math.floor(timeRemaining / (24 * 60 * 60));
-    const hours = Math.floor((timeRemaining % (24 * 60 * 60)) / (60 * 60));
-    const minutes = Math.floor((timeRemaining % (60 * 60)) / 60);
-    
-    if (days > 0) {
-      return `${days}d ${hours}h remaining`;
-    } else if (hours > 0) {
-      return `${hours}h ${minutes}m remaining`;
-    } else {
-      return `${minutes}m remaining`;
+  // Handle tournament finalization
+  const handleFinalizeTournament = async () => {
+    if (!isConnected || !address) {
+      toast.error('Please connect your wallet to finalize the tournament');
+      return;
     }
+
+    if (!tournament) {
+      toast.error('Tournament not found');
+      return;
+    }
+
+    try {
+      setIsFinalizingTournament(true);
+      // Show loading toast
+      const loadingToast = toast.loading('Finalizing tournament and distributing prizes...');
+      
+      // Import and use SimpleTournamentService
+      const { SimpleTournamentService } = await import('@/services/simpleTournamentService');
+      const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL! });
+      const PACKAGE_ID = process.env.NEXT_PUBLIC_SIMPLE_TOURNAMENT_PACKAGE_ID!;
+      const service = new SimpleTournamentService(suiClient, PACKAGE_ID);
+      
+      // Create end tournament transaction
+      const tx = service.endTournamentTransaction(tournament.id);
+      const result = await executeTransaction(tx);
+      
+      console.log('End tournament result:', result);
+      
+      if (result?.effects?.status?.status === 'success') {
+        toast.dismiss(loadingToast);
+        toast.success('Tournament finalized! Prizes have been distributed to winners.');
+        
+        // Trigger confetti for celebration
+        confetti({
+          particleCount: 200,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#FFD700', '#C0C0C0', '#CD7F32'] // Gold, Silver, Bronze
+        });
+        
+        // Update tournament status to ended
+        setTournament({
+          ...tournament,
+          status: 2 // Set status to ended
+        });
+        
+        // Refresh tournament data after a delay
+        setTimeout(async () => {
+          window.location.reload();
+        }, 3000);
+      } else {
+        toast.dismiss(loadingToast);
+        toast.error('Failed to finalize tournament');
+      }
+    } catch (error: any) {
+      console.error('Error finalizing tournament:', error);
+      toast.error(error.message || 'Failed to finalize tournament');
+    } finally {
+      setIsFinalizingTournament(false);
+    }
+  };
+
+  const formatTimeRemaining = (endTime: number) => {
+    const formattedTime = formatRemainingTime(endTime);
+    return formattedTime === 'Ended' ? 'Ended' : `${formattedTime} remaining`;
   };
 
   const getTournamentTypeLabel = () => {
@@ -860,7 +934,52 @@ export default function TournamentDetails() {
                   <div className="text-center py-8">
                     <div className="text-4xl mb-4">🏁</div>
                     <h3 className="text-xl font-bold text-white mb-2 uppercase">Tournament Ended</h3>
-                    <p className="text-gray-400">The voting has concluded!</p>
+                    <p className="text-gray-400">
+                      {isFinalized ? 'The voting has concluded and prizes have been distributed!' : 'The voting has concluded!'}
+                    </p>
+                    
+                    {/* Show finalize button if tournament ended but not finalized */}
+                    {!isFinalized && nftEntries.length >= 5 && (
+                      <button
+                        onClick={handleFinalizeTournament}
+                        disabled={isFinalizingTournament}
+                        className="mt-6 px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-bold text-lg rounded-full
+                                 hover:from-yellow-400 hover:to-yellow-500 transition-all duration-200 transform hover:-translate-y-1
+                                 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+                                 shadow-lg hover:shadow-xl uppercase tracking-wider"
+                      >
+                        {isFinalizingTournament ? (
+                          <span className="flex items-center gap-2">
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              className="w-5 h-5 border-2 border-black border-t-transparent rounded-full"
+                            />
+                            Finalizing...
+                          </span>
+                        ) : (
+                          '🏆 Finalize Tournament & Distribute Prizes'
+                        )}
+                      </button>
+                    )}
+                    
+                    {/* Show message if not enough participants */}
+                    {!isFinalized && nftEntries.length < 5 && (
+                      <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg max-w-md mx-auto">
+                        <p className="text-yellow-500 text-sm">
+                          Tournament had less than 5 participants. Finalize to refund all entry fees.
+                        </p>
+                        <button
+                          onClick={handleFinalizeTournament}
+                          disabled={isFinalizingTournament}
+                          className="mt-3 px-6 py-2 bg-yellow-500 text-black font-bold rounded-lg
+                                   hover:bg-yellow-400 transition-colors duration-200
+                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isFinalizingTournament ? 'Processing Refunds...' : 'Process Refunds'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                   {/* Show final results */}
                   <NFTVotingGallery

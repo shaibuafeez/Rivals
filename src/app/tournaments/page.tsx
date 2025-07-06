@@ -7,6 +7,8 @@ import { Tournament } from '@/services/tournamentService';
 import { useWallet } from '@/hooks/useWallet';
 import { useTournaments } from '@/hooks/useTournaments';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import TournamentCreationModal from '@/components/tournaments/TournamentCreationModal';
+import { useRouter } from 'next/navigation';
 
 // Dynamic imports to avoid SSR issues
 const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
@@ -33,8 +35,10 @@ export default function TournamentsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('active');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const { isConnected } = useWallet();
   const { tournaments, loading: isLoading, fetchTournaments } = useTournaments();
+  const router = useRouter();
 
   // Fetch tournaments when connected
   useEffect(() => {
@@ -160,8 +164,8 @@ export default function TournamentsPage() {
                     </div>
 
                     {isConnected && (
-                      <motion.a
-                        href="/create-tournament"
+                      <motion.button
+                        onClick={() => setShowCreateModal(true)}
                         className="px-6 py-3 bg-white text-black font-bold flex items-center gap-2 hover:bg-gray-200 transition-all rounded-full"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -170,7 +174,7 @@ export default function TournamentsPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                         CREATE
-                      </motion.a>
+                      </motion.button>
                     )}
                   </div>
                 </div>
@@ -485,8 +489,8 @@ export default function TournamentsPage() {
                     Be the first to create an epic NFT battle!
                   </p>
                   {isConnected && (
-                    <motion.a
-                      href="/create-tournament"
+                    <motion.button
+                      onClick={() => setShowCreateModal(true)}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold uppercase hover:bg-gray-200 transition-all rounded-full"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -495,13 +499,23 @@ export default function TournamentsPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
                       Create First Tournament
-                    </motion.a>
+                    </motion.button>
                   )}
                 </div>
               )}
             </section>
           </main>
         </div>
+        
+        {/* Tournament Creation Modal */}
+        <TournamentCreationModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={(tournamentId) => {
+            setShowCreateModal(false);
+            router.push(`/tournaments/${tournamentId}`);
+          }}
+        />
       </MotionConfig>
     </ErrorBoundary>
   );

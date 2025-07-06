@@ -6,7 +6,9 @@ import { Transaction } from '@mysten/sui/transactions';
 import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
 import { toast } from 'react-hot-toast';
-import { ArrowLeft, Trophy, Coins, Users, Shield } from 'lucide-react';
+import { ArrowLeft, Trophy, Coins, Users, Shield, Clock } from 'lucide-react';
+import { TOURNAMENT_DURATIONS, TournamentDurationKey } from '@/constants/durations';
+import { PACKAGE_IDS } from '@/config/env';
 
 export default function CreateTournamentPage() {
   const { isConnected, address, executeTransaction } = useWallet();
@@ -15,7 +17,7 @@ export default function CreateTournamentPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [bannerUrl, setBannerUrl] = useState('');
-  const [duration, setDuration] = useState(72); // Default 72 hours
+  const [selectedDuration, setSelectedDuration] = useState<TournamentDurationKey>('TWENTY_FOUR_HOURS');
   const [creating, setCreating] = useState(false);
 
   const handleCreateTournament = async () => {
@@ -34,7 +36,13 @@ export default function CreateTournamentPage() {
       
       // Create transaction using the simple tournament package
       const tx = new Transaction();
-      const PACKAGE_ID = process.env.NEXT_PUBLIC_SIMPLE_TOURNAMENT_PACKAGE_ID!;
+      const PACKAGE_ID = PACKAGE_IDS.SIMPLE_TOURNAMENT_PACKAGE_ID;
+      
+      // Get duration details
+      const duration = TOURNAMENT_DURATIONS[selectedDuration];
+      // Use appropriate function based on duration
+      const functionName = duration.minutes < 60 ? 'create_tournament_minutes' : 'create_tournament';
+      const durationValue = duration.minutes < 60 ? duration.minutes : Math.floor(duration.minutes / 60);
       
       // Convert strings to Uint8Array for the Move function
       const nameBytes = Array.from(new TextEncoder().encode(name));
@@ -42,12 +50,12 @@ export default function CreateTournamentPage() {
       const bannerUrlBytes = Array.from(new TextEncoder().encode(bannerUrl || '/images/tournament-banner-default.jpg'));
       
       tx.moveCall({
-        target: `${PACKAGE_ID}::simple_tournament::create_tournament`,
+        target: `${PACKAGE_ID}::simple_tournament::${functionName}`,
         arguments: [
           tx.pure.vector('u8', nameBytes),
           tx.pure.vector('u8', descriptionBytes),
           tx.pure.vector('u8', bannerUrlBytes),
-          tx.pure.u64(duration),
+          tx.pure.u64(durationValue),
           tx.object('0x6'), // Clock
         ],
       });
@@ -161,18 +169,27 @@ export default function CreateTournamentPage() {
                 {/* Duration */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Duration (hours)
+                    <Clock className="inline w-4 h-4 mr-1" />
+                    Duration
                   </label>
-                  <select
-                    value={duration}
-                    onChange={(e) => setDuration(Number(e.target.value))}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                    disabled={creating}
-                  >
-                    <option value={24}>24 hours (Daily)</option>
-                    <option value={72}>72 hours (3 Days)</option>
-                    <option value={168}>168 hours (Weekly)</option>
-                  </select>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {Object.entries(TOURNAMENT_DURATIONS).map(([key, duration]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setSelectedDuration(key as TournamentDurationKey)}
+                        disabled={creating}
+                        className={`p-3 rounded-lg border-2 transition-all ${
+                          selectedDuration === key
+                            ? 'border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                        } ${creating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        <div className="text-sm font-medium">{duration.label}</div>
+                        <div className="text-xs opacity-75 mt-1">{duration.description}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Submit Button */}

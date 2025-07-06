@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "NFT Battles",
-  description: "Battle for Sui Dominance with your NFTs",
+  title: "Rivals - NFT Battle Platform",
+  description: "Enter your NFTs into epic tournaments and battle for SUI prizes on the Rivals platform",
 };

@@ -1,5 +1,6 @@
 import { Transaction } from '@mysten/sui/transactions';
 import { SuiClient } from '@mysten/sui/client';
+import { PACKAGE_IDS } from '@/config/env';
 
 export interface SimpleTournament {
   id: string;
@@ -263,4 +264,40 @@ export class SimpleTournamentService {
       return false;
     }
   }
+
+  // End tournament and distribute prizes (requires wallet connection)
+  static createEndTournamentTransaction(tournamentId: string): Transaction {
+    const tx = new Transaction();
+
+    tx.moveCall({
+      target: `${PACKAGE_IDS.SIMPLE_TOURNAMENT_PACKAGE_ID}::simple_tournament::end_tournament`,
+      arguments: [
+        tx.object(tournamentId),
+        tx.object('0x6'), // Clock object
+      ],
+    });
+
+    return tx;
+  }
+
+  // Get tournament status
+  static getTournamentStatus(tournament: any): 'active' | 'expired' | 'ended' {
+    const now = Date.now();
+    const endTime = parseInt(tournament.end_time);
+    
+    if (tournament.ended) {
+      return 'ended';
+    } else if (now >= endTime) {
+      return 'expired';
+    } else {
+      return 'active';
+    }
+  }
+
+  // Check if user can end tournament
+  static canEndTournament(tournament: any): boolean {
+    const status = this.getTournamentStatus(tournament);
+    return status === 'expired';
+  }
+
 }

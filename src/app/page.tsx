@@ -31,10 +31,10 @@ export default function Home() {
             className="text-center mb-12 mt-8"
           >
             <h1 className="text-[28px] font-semibold text-gray-900 dark:text-white mb-3">
-              NFT Tournaments To Battle For Sui Dominance
+              Rivals: NFT Battle Platform
             </h1>
             <p className="text-[14px] text-gray-600 dark:text-gray-300 max-w-[700px] mx-auto">
-              Submit your NFT against others to see who comes out on top with daily, weekly, and monthly tournaments. Swipe left or right to vote!
+              Enter your NFTs into epic tournaments and battle for SUI prizes. Vote on the best NFTs and claim your share of the prize pool!
             </p>
           </motion.div>
 

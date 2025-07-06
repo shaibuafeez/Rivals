@@ -9,8 +9,8 @@ import ThemeScript from "@/components/providers/ThemeScript";
 // Using system fonts instead of Google Fonts to avoid network issues
 
 export const metadata: Metadata = {
-  title: "NFT Battles",
-  description: "Battle for Sui Dominance with your NFTs",
+  title: "Rivals - NFT Battle Platform",
+  description: "Enter your NFTs into epic tournaments and battle for SUI prizes on the Rivals platform",
 };
 
 export default function RootLayout({

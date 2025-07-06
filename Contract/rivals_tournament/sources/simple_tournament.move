@@ -333,4 +333,36 @@ module rivals_tournament::simple_tournament {
         let entry = vector::borrow(&tournament.entries, index);
         (entry.nft_id, entry.submitter, entry.image_url, entry.vote_count)
     }
+    
+    // Create a new tournament with duration in minutes
+    public entry fun create_tournament_minutes(
+        name: vector<u8>,
+        description: vector<u8>,
+        banner_url: vector<u8>,
+        duration_minutes: u64,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let tournament = Tournament {
+            id: object::new(ctx),
+            name: string::utf8(name),
+            description: string::utf8(description),
+            banner_url: string::utf8(banner_url),
+            end_time: clock::timestamp_ms(clock) + (duration_minutes * 60 * 1000),
+            entries: vector::empty(),
+            voters: vector::empty(),
+            prize_pool: balance::zero(),
+            ended: false,
+        };
+        
+        let tournament_id = object::id(&tournament);
+        
+        event::emit(TournamentCreated {
+            tournament_id,
+            name: tournament.name,
+            end_time: tournament.end_time,
+        });
+        
+        transfer::share_object(tournament);
+    }
 }
