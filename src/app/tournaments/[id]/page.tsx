@@ -808,6 +808,39 @@ export default function TournamentDetails() {
           </Link>
           
           <div className="flex items-center gap-3">
+            {/* Share Button */}
+            <button
+              onClick={() => {
+                const url = window.location.href;
+                
+                // Try to use the Web Share API if available (mobile)
+                if (navigator.share) {
+                  navigator.share({
+                    title: tournament.name,
+                    text: `Join the ${tournament.name} tournament on Rivals!`,
+                    url: url
+                  }).catch((error) => {
+                    // Fallback to clipboard if share fails
+                    if (error.name !== 'AbortError') {
+                      navigator.clipboard.writeText(url);
+                      toast.success('Tournament link copied to clipboard!');
+                    }
+                  });
+                } else {
+                  // Fallback to clipboard for desktop
+                  navigator.clipboard.writeText(url);
+                  toast.success('Tournament link copied to clipboard!');
+                }
+              }}
+              className="p-2 sm:px-4 sm:py-2 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all group rounded-lg flex items-center gap-2"
+              title="Share tournament"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a3 3 0 10-5.464 2.683A4.998 4.998 0 0112 17c0 .34-.034.671-.1.99m5.832-1.964a3 3 0 10-2.683-5.464M12 7a3 3 0 100-6 3 3 0 000 6z" />
+              </svg>
+              <span className="hidden sm:inline text-sm font-medium uppercase tracking-wider">Share</span>
+            </button>
+            
             <span className={`px-4 py-2 text-xs font-bold uppercase tracking-wider ${
               tournament.status === 1 ? 'bg-green-500 text-black' : 
               tournament.status === 2 ? 'bg-gray-700 text-gray-300' : 

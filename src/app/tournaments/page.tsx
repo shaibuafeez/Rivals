@@ -9,6 +9,7 @@ import { useTournaments } from '@/hooks/useTournaments';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import TournamentCreationModal from '@/components/tournaments/TournamentCreationModal';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 // Dynamic imports to avoid SSR issues
 const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
@@ -249,6 +250,36 @@ export default function TournamentsPage() {
                             </span>
                           </div>
                           
+                          {/* Share Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const url = `${window.location.origin}/tournaments/${tournament.id}`;
+                              
+                              if (navigator.share) {
+                                navigator.share({
+                                  title: tournament.name,
+                                  text: `Join the ${tournament.name} tournament on Rivals!`,
+                                  url: url
+                                }).catch((error) => {
+                                  if (error.name !== 'AbortError') {
+                                    navigator.clipboard.writeText(url);
+                                    toast.success('Tournament link copied!');
+                                  }
+                                });
+                              } else {
+                                navigator.clipboard.writeText(url);
+                                toast.success('Tournament link copied!');
+                              }
+                            }}
+                            className="absolute top-3 right-3 sm:top-4 md:top-6 sm:right-4 md:right-6 z-10 p-2 sm:p-2.5 bg-black/50 backdrop-blur-sm border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all group rounded-lg"
+                            title="Share tournament"
+                          >
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a3 3 0 10-5.464 2.683A4.998 4.998 0 0112 17c0 .34-.034.671-.1.99m5.832-1.964a3 3 0 10-2.683-5.464M12 7a3 3 0 100-6 3 3 0 000 6z" />
+                            </svg>
+                          </button>
+                          
                           {/* Content */}
                           <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10 z-10">
                             <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-white mb-1 sm:mb-2 uppercase">
@@ -456,7 +487,7 @@ export default function TournamentsPage() {
                           </div>
 
                           {/* Action Area */}
-                          <div className="flex gap-3">
+                          <div className="flex gap-2">
                             <motion.a
                               href={`/tournaments/${tournament.id}`}
                               className="flex-1 py-3 bg-white text-black text-center font-bold uppercase tracking-wider hover:bg-gray-200 transition-all rounded-full button-press"
@@ -465,7 +496,35 @@ export default function TournamentsPage() {
                             >
                               ENTER
                             </motion.a>
-                            <button className="px-4 py-3 border border-gray-800 text-white hover:border-gray-400 transition-all group rounded-full">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const url = `${window.location.origin}/tournaments/${tournament.id}`;
+                                
+                                if (navigator.share) {
+                                  navigator.share({
+                                    title: tournament.name,
+                                    text: `Join the ${tournament.name} tournament on Rivals!`,
+                                    url: url
+                                  }).catch((error) => {
+                                    if (error.name !== 'AbortError') {
+                                      navigator.clipboard.writeText(url);
+                                      toast.success('Tournament link copied!');
+                                    }
+                                  });
+                                } else {
+                                  navigator.clipboard.writeText(url);
+                                  toast.success('Tournament link copied!');
+                                }
+                              }}
+                              className="px-3 py-3 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all group rounded-full"
+                              title="Share tournament"
+                            >
+                              <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a3 3 0 10-5.464 2.683A4.998 4.998 0 0112 17c0 .34-.034.671-.1.99m5.832-1.964a3 3 0 10-2.683-5.464M12 7a3 3 0 100-6 3 3 0 000 6z" />
+                              </svg>
+                            </button>
+                            <button className="px-3 py-3 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-600 transition-all group rounded-full">
                               <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
