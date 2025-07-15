@@ -69,7 +69,7 @@ export class SimpleTournamentService {
     tx.setSender(senderAddress);
     
     // Set a reasonable gas budget to prevent excessive consumption
-    tx.setGasBudget(50_000_000); // 0.05 SUI should be more than enough
+    tx.setGasBudget(10_000_000); // 0.01 SUI should be sufficient for this transaction
     
     // Create a coin with slightly more than entry fee needed
     // The contract will split exactly ENTRY_FEE and leave remainder in the coin
