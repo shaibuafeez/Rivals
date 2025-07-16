@@ -2,7 +2,7 @@ import { checkSpecificNFTInWallet, useCheckSpecificNFT, checkMultipleNFTsInWalle
 import { SuiClient } from '@mysten/sui/client';
 
 // Azur Guardian NFT type constant - same as in the smart contract
-export const AZUR_GUARDIAN_NFT_TYPE = '0xfc9d0c6972cae3f303030b993485af37e2d86ebf3b409d1e6a40cde955a43a77::azur_guardians::Nft';
+export const AZUR_GUARDIAN_NFT_TYPE = process.env.NEXT_PUBLIC_AZUR_GUARDIAN_NFT_TYPE!;
 
 /**
  * Check if a wallet owns a specific Azur Guardian NFT
@@ -72,7 +72,7 @@ export async function getAllAzurGuardianNFTs(
   isInKiosk: boolean;
   kioskId?: string;
 }>> {
-  const BLOCKVISION_API_KEY = process.env.NEXT_PUBLIC_BLOCKVISION_API_KEY || '2vmcIQeMF5JdhEXyuyQ8n79UNoO';
+  const BLOCKVISION_API_KEY = process.env.NEXT_PUBLIC_BLOCKVISION_API_KEY!;
   
   try {
     // Fetch from BlockVision API

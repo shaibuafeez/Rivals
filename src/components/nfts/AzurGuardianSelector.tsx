@@ -75,7 +75,7 @@ export default function AzurGuardianSelector({ onSelect, selectedNftId }: AzurGu
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a 
-                  href="https://www.tradeport.xyz/sui/collection/0xfc9d0c6972cae3f303030b993485af37e2d86ebf3b409d1e6a40cde955a43a77::azur_guardians::Nft"
+                  href={`https://www.tradeport.xyz/sui/collection/${process.env.NEXT_PUBLIC_AZUR_GUARDIAN_NFT_TYPE}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"

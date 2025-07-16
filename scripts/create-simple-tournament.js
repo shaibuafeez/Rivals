@@ -3,14 +3,17 @@ const { Transaction } = require('@mysten/sui/transactions');
 const { Ed25519Keypair } = require('@mysten/sui/keypairs/ed25519');
 
 async function createSimpleTournament() {
+  // Load environment variables
+  require('dotenv').config();
+  
   // Initialize client
-  const client = new SuiClient({ url: 'https://fullnode.mainnet.sui.io' });
+  const client = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL });
   
   // Package ID for simple tournaments
-  const PACKAGE_ID = '0xca6e7b1b3e523a551e46fb90e4bf6690b91455919a909e9aa5e8b7619408c5ce';
+  const PACKAGE_ID = process.env.NEXT_PUBLIC_SIMPLE_TOURNAMENT_PACKAGE_ID;
   
-  // Create keypair from private key (from .env.local)
-  const privateKey = process.env.PRIVATE_KEY || '0x4ec5a9a41af5c6cd6f2c119d49735fe7fc4bf93a97b3b5f37f335df0b4d2b1c3';
+  // Create keypair from private key (from .env)
+  const privateKey = process.env.PRIVATE_KEY;
   const keypair = Ed25519Keypair.fromSecretKey(privateKey);
   const address = keypair.getPublicKey().toSuiAddress();
   

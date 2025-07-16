@@ -41,7 +41,7 @@ export default function AzurGuardianInfo() {
               <p className="font-medium mb-2">Where to get Azur Guardian NFTs:</p>
               <div className="flex flex-wrap gap-3">
                 <a
-                  href="https://www.tradeport.xyz/sui/collection/0xfc9d0c6972cae3f303030b993485af37e2d86ebf3b409d1e6a40cde955a43a77::azur_guardians::Nft"
+                  href={`https://www.tradeport.xyz/sui/collection/${process.env.NEXT_PUBLIC_AZUR_GUARDIAN_NFT_TYPE}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"

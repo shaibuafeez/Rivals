@@ -27,8 +27,8 @@ export interface KioskNFT extends NFTMetadata {
 
 export class NFTService {
   private suiClient: SuiClient;
-  private AZUR_GUARDIAN_TYPE = '0xfc9d0c6972cae3f303030b993485af37e2d86ebf3b409d1e6a40cde955a43a77::azur_guardians::Nft';
-  private BLOCKVISION_API_KEY = process.env.NEXT_PUBLIC_BLOCKVISION_API_KEY || '';
+  private AZUR_GUARDIAN_TYPE = process.env.NEXT_PUBLIC_AZUR_GUARDIAN_NFT_TYPE!;
+  private BLOCKVISION_API_KEY = process.env.NEXT_PUBLIC_BLOCKVISION_API_KEY!;
 
   constructor(suiClient?: unknown) {
     // If no client provided or if it's from dapp-kit, create a new SuiClient

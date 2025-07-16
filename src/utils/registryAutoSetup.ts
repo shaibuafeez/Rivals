@@ -1,7 +1,7 @@
 import { SuiClient } from '@mysten/sui/client';
 import { Transaction } from '@mysten/sui/transactions';
 
-const PACKAGE_ID = process.env.NEXT_PUBLIC_TOURNAMENT_PACKAGE_ID || '0x203bbd21feeaa6ea6ea756e83548de6a54ed6ac6c29e5dbbfdfe026d5b44858d';
+const PACKAGE_ID = process.env.NEXT_PUBLIC_TOURNAMENT_PACKAGE_ID!;
 
 interface RegistrySearchResult {
   found: boolean;

@@ -27,7 +27,7 @@ interface UserNFTSelectorProps {
   collectionType?: string;
 }
 
-const AZUR_GUARDIAN_TYPE = '0xfc9d0c6972cae3f303030b993485af37e2d86ebf3b409d1e6a40cde955a43a77::azur_guardians::Nft';
+const AZUR_GUARDIAN_TYPE = process.env.NEXT_PUBLIC_AZUR_GUARDIAN_NFT_TYPE!;
 
 const UserNFTSelector: React.FC<UserNFTSelectorProps> = ({ 
   onSelectNFT, 

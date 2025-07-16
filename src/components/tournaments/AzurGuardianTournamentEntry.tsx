@@ -9,8 +9,8 @@ import AzurGuardianModal from '@/components/nfts/AzurGuardianModal';
 import { useWallet } from '@/hooks/useWallet';
 
 // Constants for the tournament package
-const PACKAGE_ID = process.env.NEXT_PUBLIC_TOURNAMENT_PACKAGE_ID || '0x2e17ddcc27fd52725f7304ff4dfe555c720cd8d6b7cb265e9c67ba65a3fd0b92';
-const REGISTRY_ID = process.env.NEXT_PUBLIC_TOURNAMENT_REGISTRY_ID || '0x20fc2bb8f87ce6f88e7447cc421aa6407f1aea21933e6599934d13a6329802e9';
+const PACKAGE_ID = process.env.NEXT_PUBLIC_TOURNAMENT_PACKAGE_ID!;
+const REGISTRY_ID = process.env.NEXT_PUBLIC_TOURNAMENT_REGISTRY_ID!;
 
 interface AzurGuardianTournamentEntryProps {
   tournamentId: string;
